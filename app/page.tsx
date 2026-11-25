@@ -40,7 +40,7 @@ export default function Home() {
   const toggleSave = (id: number) => setSaved((current) => { const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id]; localStorage.setItem("watchora-watchlist", JSON.stringify(next)); return next; });
 
   return (
-    <main className="min-h-screen overflow-hidden">
+    <main className="min-h-screen">
       <header className="absolute left-0 right-0 top-0 z-30 border-b border-white/[.08] bg-black/20 backdrop-blur-md">
         <div className="shell flex h-[76px] items-center justify-between">
           <Link href="#" className="flex items-center gap-2.5"><span className="grid h-9 w-9 place-items-center rounded-xl border border-[#d9b779]/40 bg-[#d9b779]/10 text-[#d9b779]"><Clapperboard size={18}/></span><span className="font-['Manrope'] text-[19px] font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></span></Link>
