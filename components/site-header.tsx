@@ -12,6 +12,7 @@ const links = [
   { href: "/preferences", label: "Preferences" },
   { href: "/watchlist", label: "Watchlist" },
   { href: "/profile", label: "My profile" },
+  { href: "/notifications", label: "Notifications" },
 ];
 
 export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
