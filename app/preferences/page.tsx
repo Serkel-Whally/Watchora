@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import SiteHeader from "@/components/site-header";
 import { ArrowLeft, Check, Globe2, Languages, Sparkles } from "lucide-react";
 import { films, genres } from "@/lib/catalogue";
 
@@ -43,7 +44,7 @@ export default function PreferencesPage() {
   };
 
   return <main className="min-h-screen">
-    <header className="border-b border-white/[.08]"><div className="shell flex h-[76px] items-center justify-between"><Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link><Link href="/explore" className="text-xs text-white/55 hover:text-white">Discover</Link></div></header>
+    <SiteHeader />
     <section className="shell max-w-3xl py-12 md:py-16">
       <Link href="/" className="inline-flex items-center gap-2 text-xs text-white/45 hover:text-white"><ArrowLeft size={14}/> Back home</Link>
       <p className="eyebrow mt-9">Make discovery yours</p><h1 className="mt-3 font-['Manrope'] text-4xl font-semibold tracking-[-.06em] md:text-5xl">Your preferences.</h1>
