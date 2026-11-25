@@ -9,6 +9,7 @@ const links = [
   { href: "/collections", label: "Collections" },
   { href: "/community", label: "Community" },
   { href: "/activity", label: "Activity" },
+  { href: "/following", label: "Following" },
   { href: "/preferences", label: "Preferences" },
   { href: "/watchlist", label: "Watchlist" },
   { href: "/profile", label: "My profile" },
