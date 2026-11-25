@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
   }
   const { data, error } = await auth.supabase!
     .from("title_reviews")
-    .update({ status, updated_at: new Date().toISOString() })
+    .update({ status })
     .eq("id", id)
     .eq("status", "pending")
     .select("id")
