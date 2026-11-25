@@ -25,7 +25,9 @@ export function normalizeFilmRecord(input: unknown): Film | null {
   if (!nonEmptyString(title) || !Number.isInteger(year) || (year as number) < 1888 || (year as number) > 2100) return null;
   if (kind !== "Film" && kind !== "Series") return null;
   if (!nonEmptyString(genre) || !nonEmptyString(country) || !nonEmptyString(description)) return null;
-  if (!(typeof rating === "string" || typeof rating === "number") || !Number.isFinite(Number(rating))) return null;
+  if (!(typeof rating === "string" || typeof rating === "number")) return null;
+  const numericRating = Number(rating);
+  if (!Number.isFinite(numericRating) || numericRating < 0 || numericRating > 10) return null;
   if (!nonEmptyString(image)) return null;
 
   let imageUrl: URL;
@@ -34,7 +36,7 @@ export function normalizeFilmRecord(input: unknown): Film | null {
   } catch {
     return null;
   }
-  if (imageUrl.protocol !== "https:") return null;
+  if (imageUrl.protocol !== "https:" || !imageUrl.hostname) return null;
 
   const originalLanguage = nonEmptyString(input.originalLanguage)
     ? input.originalLanguage.trim().toLowerCase()
