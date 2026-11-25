@@ -27,7 +27,6 @@ export function validateEditorialConfiguration({
   const issues: EditorialIssue[] = [];
   const titleIds = new Set(titles.map((title) => title.id));
   const collectionBySlug = new Map<string, CuratedCollection>();
-  const seenCollectionSlugs = new Set<string>();
 
   for (const collection of collections) {
     if (collectionBySlug.has(collection.slug)) {
