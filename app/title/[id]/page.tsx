@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Globe2, Star } from "lucide-react";
 import WatchlistToggle from "@/components/watchlist-toggle";
+import TitleViewTracker from "@/components/title-view-tracker";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
 
 const catalogue = getCatalogueProvider();
@@ -26,6 +27,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
 
   return (
     <main className="min-h-screen">
+      <TitleViewTracker id={film.id} />
       <header className="border-b border-white/[.08]">
         <div className="shell flex h-[76px] items-center justify-between">
           <Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link>
