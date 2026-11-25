@@ -89,3 +89,52 @@ create trigger review_comment_approved_notification
   for each row execute function public.notify_approved_review_comment();
 
 revoke all on function public.notify_approved_review_comment() from public, anon, authenticated;
+
+-- The original triggers used a named ON CONFLICT target. The uniqueness
+-- constraint was replaced above with partial indexes, so use targetless
+-- conflict handling to preserve safe idempotency.
+create or replace function public.notify_review_status_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if old.status is distinct from new.status and new.status in ('approved','rejected') then
+    insert into public.member_notifications
+      (user_id, notification_type, title_id, review_id)
+    values
+      (new.user_id,
+       case when new.status = 'approved' then 'review_approved' else 'review_rejected' end,
+       new.title_id, new.id)
+    on conflict do nothing;
+  end if;
+  return new;
+end;
+$$;
+
+create or replace function public.notify_review_helpful_vote()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_review public.title_reviews%rowtype;
+begin
+  select * into v_review
+  from public.title_reviews
+  where id = new.review_id and status = 'approved';
+  if found and v_review.user_id <> new.user_id then
+    insert into public.member_notifications
+      (user_id, actor_id, notification_type, title_id, review_id)
+    values
+      (v_review.user_id, new.user_id, 'review_helpful', v_review.title_id, v_review.id)
+    on conflict do nothing;
+  end if;
+  return new;
+end;
+$$;
+
+revoke all on function public.notify_review_status_change() from public, anon, authenticated;
+revoke all on function public.notify_review_helpful_vote() from public, anon, authenticated;
