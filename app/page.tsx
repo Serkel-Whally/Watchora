@@ -1,22 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowRight, Bookmark, Check, ChevronDown, Clapperboard, Compass, Globe2, Menu, Play, Search, Sparkles, X } from "lucide-react";
 
-type Film = { id: number; title: string; year: number; kind: string; genre: string; country: string; rating: string; image: string; description: string };
-
-const films: Film[] = [
-  { id: 1, title: "The Grand Budapest Hotel", year: 2014, kind: "Film", genre: "Comedy", country: "United States", rating: "8.1", image: "https://image.tmdb.org/t/p/w500/eWdyYQreja6JGCzqHwJZ1W7p4k.jpg", description: "A concierge and his young protégé become wrapped up in a story of art, inheritance and adventure." },
-  { id: 2, title: "Past Lives", year: 2023, kind: "Film", genre: "Drama", country: "United States", rating: "7.8", image: "https://image.tmdb.org/t/p/w500/k3waqVXSnvCZWfJYNtdamTgTtTA.jpg", description: "Two childhood friends are pulled apart and brought together again across decades and continents." },
-  { id: 3, title: "The Boy and the Heron", year: 2023, kind: "Film", genre: "Animation", country: "Japan", rating: "7.5", image: "https://image.tmdb.org/t/p/w500/f4oZTcfGrVTXKTWg157AwikXqmP.jpg", description: "A young boy enters a world shared by the living and the dead." },
-  { id: 4, title: "Perfect Days", year: 2023, kind: "Film", genre: "Drama", country: "Japan", rating: "7.9", image: "https://image.tmdb.org/t/p/w500/4p1N2Qrt8j0H8xMHMHvtRxv9weZ.jpg", description: "A quiet portrait of a Tokyo cleaner finding beauty in the rituals of everyday life." },
-  { id: 5, title: "The Bear", year: 2022, kind: "Series", genre: "Drama", country: "United States", rating: "8.6", image: "https://image.tmdb.org/t/p/w500/sHFlbKS3WLqMnp9t2ghADIJFnuQ.jpg", description: "A young chef returns home to run his family's sandwich shop." },
-  { id: 6, title: "Parasite", year: 2019, kind: "Film", genre: "Thriller", country: "South Korea", rating: "8.5", image: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg", description: "A struggling family becomes entangled with a wealthy household." },
-  { id: 7, title: "Aftersun", year: 2022, kind: "Film", genre: "Drama", country: "United Kingdom", rating: "7.7", image: "https://image.tmdb.org/t/p/w500/y89DU4x2Dk5V9tQyq2j5q8VQqQ.jpg", description: "A daughter looks back on a holiday with her father and what she could not understand then." },
-  { id: 8, title: "RRR", year: 2022, kind: "Film", genre: "Action", country: "India", rating: "7.8", image: "https://image.tmdb.org/t/p/w500/nEufeZlyAOLqO2brrs0yeF1lgXO.jpg", description: "Two legendary revolutionaries forge an unlikely friendship in a larger-than-life adventure." },
-];
-
-const genres = ["All", "Drama", "Comedy", "Thriller", "Animation", "Action"];
+import { films, genres, type Film } from "@/lib/catalogue";
 
 function FilmCard({ film, saved, onSave, onOpen }: { film: Film; saved: boolean; onSave: (id: number) => void; onOpen: (film: Film) => void }) {
   return (
@@ -37,24 +24,24 @@ function FilmCard({ film, saved, onSave, onOpen }: { film: Film; saved: boolean;
 export default function Home() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState("All");
-  const [saved, setSaved] = useState<number[]>([]);
+  const [saved, setSaved] = useState<number[]>([]);\n  useEffect(() => { try { setSaved(JSON.parse(localStorage.getItem("watchora-watchlist") || "[]")); } catch { setSaved([]); } }, []);
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);
   const [showMood, setShowMood] = useState(false);
   const [mood, setMood] = useState("Something uplifting");
   const [mobileMenu, setMobileMenu] = useState(false);
   const filtered = useMemo(() => films.filter((f) => (genre === "All" || f.genre === genre) && (f.title.toLowerCase().includes(query.toLowerCase()) || f.country.toLowerCase().includes(query.toLowerCase()))), [genre, query]);
-  const toggleSave = (id: number) => setSaved((current) => current.includes(id) ? current.filter((x) => x !== id) : [...current, id]);
+  const toggleSave = (id: number) => setSaved((current) => { const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id]; localStorage.setItem("watchora-watchlist", JSON.stringify(next)); return next; });
 
   return (
     <main className="min-h-screen overflow-hidden">
       <header className="absolute left-0 right-0 top-0 z-30 border-b border-white/[.08] bg-black/20 backdrop-blur-md">
         <div className="shell flex h-[76px] items-center justify-between">
           <a href="#" className="flex items-center gap-2.5"><span className="grid h-9 w-9 place-items-center rounded-xl border border-[#d9b779]/40 bg-[#d9b779]/10 text-[#d9b779]"><Clapperboard size={18}/></span><span className="font-['Manrope'] text-[19px] font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></span></a>
-          <nav className="hidden items-center gap-9 text-[13px] text-white/65 md:flex"><a className="text-white" href="#discover">Discover</a><a href="#collections" className="transition hover:text-white">Collections</a><button onClick={() => setShowMood(true)} className="transition hover:text-white">Mood finder</button></nav>
+          <nav className="hidden items-center gap-9 text-[13px] text-white/65 md:flex"><a className="text-white" href="/explore">Discover</a><a href="/watchlist" className="transition hover:text-white">Watchlist</a><a href="#collections" className="transition hover:text-white">Collections</a><button onClick={() => setShowMood(true)} className="transition hover:text-white">Mood finder</button></nav>
           <div className="hidden items-center gap-5 md:flex"><span className="flex items-center gap-2 text-xs text-white/50"><Globe2 size={14}/> Worldwide <ChevronDown size={13}/></span><button onClick={() => document.getElementById("discover")?.scrollIntoView({ behavior: "smooth" })} className="rounded-full bg-[#d9b779] px-5 py-2.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]">Explore films</button></div>
           <button className="text-white md:hidden" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Toggle menu">{mobileMenu ? <X/> : <Menu/>}</button>
         </div>
-        {mobileMenu && <div className="border-t border-white/10 bg-[#0b0c0f] px-6 py-5 md:hidden"><div className="flex flex-col gap-5 text-sm text-white/75"><a href="#discover" onClick={() => setMobileMenu(false)}>Discover</a><a href="#collections" onClick={() => setMobileMenu(false)}>Collections</a><button className="text-left" onClick={() => {setShowMood(true);setMobileMenu(false);}}>Mood finder</button></div></div>}
+        {mobileMenu && <div className="border-t border-white/10 bg-[#0b0c0f] px-6 py-5 md:hidden"><div className="flex flex-col gap-5 text-sm text-white/75"><a href="/explore" onClick={() => setMobileMenu(false)}>Discover</a><a href="/watchlist" onClick={() => setMobileMenu(false)}>Watchlist</a><a href="#collections" onClick={() => setMobileMenu(false)}>Collections</a><button className="text-left" onClick={() => {setShowMood(true);setMobileMenu(false);}}>Mood finder</button></div></div>}
       </header>
 
       <section className="hero-art relative flex min-h-[690px] items-end bg-[#15171b] pb-20 pt-32 md:min-h-[760px]" style={{ backgroundImage: "linear-gradient(90deg, #090a0d 0%, rgba(9,10,13,.93) 24%, rgba(9,10,13,.52) 58%, rgba(9,10,13,.2) 100%), linear-gradient(0deg, #090a0d 0%, transparent 48%), url('https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" }}>
@@ -72,7 +59,7 @@ export default function Home() {
           <label className="flex h-12 w-full items-center gap-3 rounded-full border border-white/10 bg-white/[.035] px-4 md:max-w-[310px]"><Search size={16} className="text-white/35"/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search titles or countries..." className="w-full bg-transparent text-xs text-white outline-none placeholder:text-white/30"/></label>
         </div>
         <div className="hide-scrollbar mt-8 flex gap-2 overflow-x-auto pb-2">{genres.map((g) => <button key={g} onClick={() => setGenre(g)} className={`shrink-0 rounded-full border px-4 py-2 text-xs transition ${genre === g ? "border-[#d9b779] bg-[#d9b779] text-[#17130d]" : "border-white/10 text-white/55 hover:border-white/30 hover:text-white"}`}>{g}</button>)}</div>
-        <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">{filtered.map((film) => <FilmCard key={film.id} film={film} saved={saved.includes(film.id)} onSave={toggleSave} onOpen={setActiveFilm}/> )}</div>
+        <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">{filtered.map((film) => <FilmCard key={film.id} film={film} saved={saved.includes(film.id)} onSave={toggleSave} onOpen={(film) => { window.location.href = `/title/${film.id}`; }}/> )}</div>
         {filtered.length === 0 && <div className="py-20 text-center text-sm text-white/45">No titles match that search. Try another title or country.</div>}
         <p className="mt-8 text-center text-[11px] text-white/30">Sample catalogue · Titles and artwork are illustrative and not a live catalogue.</p>
       </section>
