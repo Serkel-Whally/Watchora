@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, ArrowLeft, Check, CheckCircle2, Download, FileJson, FileUp, ShieldCheck, XCircle } from "lucide-react";
 import { importCatalogueJson, type CatalogueImportResult } from "@/lib/catalogue-import";
-import type { Film } from "@/lib/catalogue";
+import { films, type Film } from "@/lib/catalogue";
 
 export default function CatalogueImportReview() {
   const [source, setSource] = useState("");
@@ -14,16 +14,21 @@ export default function CatalogueImportReview() {
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const existingIds = useMemo(() => new Set(films.map((title) => title.id)), []);
+  const existingConflicts = useMemo(
+    () => (result?.titles ?? []).filter((title) => existingIds.has(title.id)),
+    [result, existingIds],
+  );
   const selectedTitles = useMemo(
-    () => (result?.titles ?? []).filter((title) => selectedIds.includes(title.id)),
-    [result, selectedIds],
+    () => (result?.titles ?? []).filter((title) => selectedIds.includes(title.id) && !existingIds.has(title.id)),
+    [result, selectedIds, existingIds],
   );
 
   const processImport = (value: string) => {
     setSource(value);
     const next = importCatalogueJson(value);
     setResult(next);
-    setSelectedIds(next.titles.map((title) => title.id));
+    setSelectedIds(next.titles.filter((title) => !existingIds.has(title.id)).map((title) => title.id));
     setReviewConfirmed(false);
     setError("");
   };
@@ -42,6 +47,7 @@ export default function CatalogueImportReview() {
   };
 
   const toggleTitle = (title: Film) => {
+    if (existingIds.has(title.id)) return;
     setSelectedIds((current) =>
       current.includes(title.id)
         ? current.filter((id) => id !== title.id)
@@ -103,6 +109,7 @@ export default function CatalogueImportReview() {
                 <div className="rounded-xl bg-white/[.045] p-3"><p className="text-2xl font-semibold tabular-nums">{result.rejected.length}</p><p className="mt-1 text-[10px] text-white/40">Rejected</p></div>
                 <div className="rounded-xl bg-white/[.045] p-3"><p className="text-2xl font-semibold tabular-nums">{result.issues.length}</p><p className="mt-1 text-[10px] text-white/40">Warnings</p></div>
               </div>
+              {existingConflicts.length > 0 && <div className="mt-5 rounded-xl border border-amber-200/15 bg-amber-200/[.04] p-3"><p className="text-xs font-semibold text-amber-100">{existingConflicts.length} existing catalogue ID conflict{existingConflicts.length === 1 ? "" : "s"}</p><p className="mt-1 text-[11px] leading-5 text-white/45">These titles already exist in the current seed catalogue. They are excluded from the approved export to prevent accidental duplicate IDs.</p></div>}
               {result.rejected.length > 0 && <div className="mt-5 space-y-2"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-rose-300">Rejected records</p>{result.rejected.map((item, index) => <div key={`${item.index}-${index}`} className="flex gap-2 rounded-lg border border-rose-300/10 bg-rose-300/[.04] p-3"><XCircle size={14} className="mt-0.5 shrink-0 text-rose-300"/><div><p className="text-xs text-white/70">{item.index < 0 ? "Import file" : `Record ${item.index + 1}`}</p><p className="mt-1 text-[11px] leading-5 text-white/40">{item.reason}</p></div></div>)}</div>}
               {result.issues.length > 0 && <div className="mt-5 space-y-2"><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-amber-200">Quality warnings</p>{result.issues.map((issue, index) => <div key={`${issue.code}-${issue.titleId}-${index}`} className="flex gap-2 rounded-lg border border-amber-200/10 bg-amber-200/[.035] p-3"><AlertCircle size={14} className="mt-0.5 shrink-0 text-amber-200"/><div><p className="text-xs text-white/70">{issue.title} · {issue.code}</p><p className="mt-1 text-[11px] leading-5 text-white/40">{issue.message}</p></div></div>)}</div>}
               {result.titles.length > 0 && result.issues.length === 0 && result.rejected.length === 0 && <p className="mt-5 flex items-center gap-2 text-xs text-emerald-300"><CheckCircle2 size={15}/> All records passed validation.</p>}
@@ -115,10 +122,11 @@ export default function CatalogueImportReview() {
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[.08] p-5 md:px-6"><div><h2 className="font-['Manrope'] text-lg font-semibold">3. Review accepted titles</h2><p className="mt-1 text-xs text-white/40">Uncheck anything you do not want in the approved export.</p></div><span className="text-xs tabular-nums text-[#d9b779]">{selectedTitles.length} / {result.titles.length} selected</span></div>
             <div className="divide-y divide-white/[.06]">
               {result.titles.map((title) => {
-                const checked = selectedIds.includes(title.id);
-                return <label key={title.id} className="flex cursor-pointer items-start gap-3 p-4 transition hover:bg-white/[.025] md:px-6">
-                  <input type="checkbox" checked={checked} onChange={() => toggleTitle(title)} className="mt-1 accent-[#d9b779]"/>
-                  <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium text-white/85">{title.title}</span><span className="rounded bg-white/[.06] px-2 py-0.5 text-[9px] text-white/40">ID {title.id}</span></div><p className="mt-1 text-[11px] text-white/40">{title.year} · {title.kind} · {title.genre} · {title.country}</p><p className="mt-2 line-clamp-2 text-xs leading-5 text-white/35">{title.description}</p></div>
+                const exists = existingIds.has(title.id);
+                const checked = selectedIds.includes(title.id) && !exists;
+                return <label key={title.id} className={`flex items-start gap-3 p-4 transition md:px-6 ${exists ? "cursor-not-allowed opacity-45" : "cursor-pointer hover:bg-white/[.025]"}`}>
+                  <input type="checkbox" checked={checked} disabled={exists} onChange={() => toggleTitle(title)} className="mt-1 accent-[#d9b779]"/>
+                  <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium text-white/85">{title.title}</span><span className="rounded bg-white/[.06] px-2 py-0.5 text-[9px] text-white/40">ID {title.id}</span>{exists && <span className="rounded bg-amber-200/10 px-2 py-0.5 text-[9px] text-amber-100">Already in catalogue</span>}</div><p className="mt-1 text-[11px] text-white/40">{title.year} · {title.kind} · {title.genre} · {title.country}</p><p className="mt-2 line-clamp-2 text-xs leading-5 text-white/35">{title.description}</p></div>
                   <span className={checked ? "rounded-full bg-[#d9b779]/10 p-1.5 text-[#d9b779]" : "rounded-full bg-white/[.05] p-1.5 text-white/25"}>{checked ? <Check size={14}/> : <XCircle size={14}/>}</span>
                 </label>;
               })}
