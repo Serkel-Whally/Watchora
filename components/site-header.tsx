@@ -9,6 +9,7 @@ const links = [
   { href: "/collections", label: "Collections" },
   { href: "/preferences", label: "Preferences" },
   { href: "/watchlist", label: "Watchlist" },
+  { href: "/profile", label: "My profile" },
 ];
 
 export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
