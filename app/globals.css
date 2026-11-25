@@ -5,7 +5,8 @@
 
 :root { color-scheme: dark; --bg: #090a0d; --muted: #999ba4; --gold: #d9b779; }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: clip; }
+body { overflow-x: clip; }
 body { margin: 0; background: var(--bg); color: #f5f4f1; font-family: 'DM Sans', sans-serif; }
 button, input { font: inherit; }
 button { cursor: pointer; }
