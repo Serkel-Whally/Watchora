@@ -5,6 +5,7 @@ export type CatalogueFilters = {
   genre?: string;
   kind?: TitleKind | "All";
   country?: string;
+  language?: string;
 };
 
 export type CatalogueSort = "featured" | "newest" | "oldest" | "rating";
@@ -24,7 +25,8 @@ export function filterCatalogue(titles: Film[], filters: CatalogueFilters): Film
     return matchesQuery
       && (!filters.genre || filters.genre === "All" || title.genre === filters.genre)
       && (!filters.kind || filters.kind === "All" || title.kind === filters.kind)
-      && (!filters.country || filters.country === "All" || title.country === filters.country);
+      && (!filters.country || filters.country === "All" || title.country === filters.country)
+      && (!filters.language || filters.language === "All" || title.originalLanguage === filters.language);
   });
 }
 
