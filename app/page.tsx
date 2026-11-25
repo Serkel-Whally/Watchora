@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowRight, Bookmark, Check, ChevronDown, Clapperboard, Compass, Globe2, Menu, Play, Search, Sparkles, X } from "lucide-react";
 
 import { films, genres, type Film } from "@/lib/catalogue";
+import PersonalizedDiscovery from "@/components/personalized-discovery";
 
 function FilmCard({ film, saved, onSave, onOpen }: { film: Film; saved: boolean; onSave: (id: number) => void; onOpen: (film: Film) => void }) {
   return (
@@ -38,11 +39,11 @@ export default function Home() {
       <header className="absolute left-0 right-0 top-0 z-30 border-b border-white/[.08] bg-black/20 backdrop-blur-md">
         <div className="shell flex h-[76px] items-center justify-between">
           <a href="#" className="flex items-center gap-2.5"><span className="grid h-9 w-9 place-items-center rounded-xl border border-[#d9b779]/40 bg-[#d9b779]/10 text-[#d9b779]"><Clapperboard size={18}/></span><span className="font-['Manrope'] text-[19px] font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></span></a>
-          <nav className="hidden items-center gap-9 text-[13px] text-white/65 md:flex"><a className="text-white" href="/explore">Discover</a><a href="/watchlist" className="transition hover:text-white">Watchlist</a><a href="#collections" className="transition hover:text-white">Collections</a><button onClick={() => setShowMood(true)} className="transition hover:text-white">Mood finder</button></nav>
-          <div className="hidden items-center gap-5 md:flex"><span className="flex items-center gap-2 text-xs text-white/50"><Globe2 size={14}/> Worldwide <ChevronDown size={13}/></span><button onClick={() => document.getElementById("discover")?.scrollIntoView({ behavior: "smooth" })} className="rounded-full bg-[#d9b779] px-5 py-2.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]">Explore films</button></div>
+          <nav className="hidden items-center gap-9 text-[13px] text-white/65 md:flex"><a className="text-white" href="/explore">Discover</a><a href="/preferences" className="transition hover:text-white">Preferences</a><a href="/watchlist" className="transition hover:text-white">Watchlist</a><a href="#collections" className="transition hover:text-white">Collections</a><button onClick={() => setShowMood(true)} className="transition hover:text-white">Mood finder</button></nav>
+          <div className="hidden items-center gap-5 md:flex"><a href="/preferences" className="flex items-center gap-2 text-xs text-white/50 hover:text-white"><Globe2 size={14}/> Preferences <ChevronDown size={13}/></a><button onClick={() => document.getElementById("discover")?.scrollIntoView({ behavior: "smooth" })} className="rounded-full bg-[#d9b779] px-5 py-2.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]">Explore films</button></div>
           <button className="text-white md:hidden" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Toggle menu">{mobileMenu ? <X/> : <Menu/>}</button>
         </div>
-        {mobileMenu && <div className="border-t border-white/10 bg-[#0b0c0f] px-6 py-5 md:hidden"><div className="flex flex-col gap-5 text-sm text-white/75"><a href="/explore" onClick={() => setMobileMenu(false)}>Discover</a><a href="/watchlist" onClick={() => setMobileMenu(false)}>Watchlist</a><a href="#collections" onClick={() => setMobileMenu(false)}>Collections</a><button className="text-left" onClick={() => {setShowMood(true);setMobileMenu(false);}}>Mood finder</button></div></div>}
+        {mobileMenu && <div className="border-t border-white/10 bg-[#0b0c0f] px-6 py-5 md:hidden"><div className="flex flex-col gap-5 text-sm text-white/75"><a href="/explore" onClick={() => setMobileMenu(false)}>Discover</a><a href="/preferences" onClick={() => setMobileMenu(false)}>Preferences</a><a href="/watchlist" onClick={() => setMobileMenu(false)}>Watchlist</a><a href="#collections" onClick={() => setMobileMenu(false)}>Collections</a><button className="text-left" onClick={() => {setShowMood(true);setMobileMenu(false);}}>Mood finder</button></div></div>}
       </header>
 
       <section className="hero-art relative flex min-h-[690px] items-end bg-[#15171b] pb-20 pt-32 md:min-h-[760px]" style={{ backgroundImage: "linear-gradient(90deg, #090a0d 0%, rgba(9,10,13,.93) 24%, rgba(9,10,13,.52) 58%, rgba(9,10,13,.2) 100%), linear-gradient(0deg, #090a0d 0%, transparent 48%), url('https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" }}>
@@ -54,6 +55,8 @@ export default function Home() {
         </div>
         <div className="absolute bottom-8 right-8 hidden items-center gap-2 text-[10px] uppercase tracking-[.2em] text-white/35 lg:flex"><span>Scroll to discover</span><ArrowDown size={13}/></div>
       </section>
+
+      <PersonalizedDiscovery />
 
       <section id="discover" className="shell scroll-mt-10 py-20">
         <div className="flex flex-col justify-between gap-7 md:flex-row md:items-end"><div><p className="eyebrow">Your next watch starts here</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">Explore the world of film</h2><p className="mt-3 text-sm text-white/45">A handpicked sample to get your discovery started.</p></div>
