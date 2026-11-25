@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDown, ArrowRight, Bookmark, Check, ChevronDown, Clapperboard, Compass, Globe2, Menu, Play, Search, Sparkles, X } from "lucide-react";
+import Link from "next/link";
+import { ArrowDown, ArrowRight, Bookmark, Check, ChevronDown, Clapperboard, Globe2, Menu, Search, Sparkles, X } from "lucide-react";
 
 import { films, genres, type Film } from "@/lib/catalogue";
 import PersonalizedDiscovery from "@/components/personalized-discovery";
@@ -69,7 +70,7 @@ export default function Home() {
       </section>
 
       <section id="collections" className="border-y border-white/[.07] bg-[#0d0f13] py-20">
-        <div className="shell"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Curated for curious minds</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">Stories beyond borders</h2></div><a href="/collections" className="inline-flex items-center gap-2 text-xs text-[#d9b779] transition hover:text-[#edce94]">View all collections <ArrowRight size={14}/></a></div>
+        <div className="shell"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Curated for curious minds</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">Stories beyond borders</h2></div><Link href="/collections" className="inline-flex items-center gap-2 text-xs text-[#d9b779] transition hover:text-[#edce94]">View all collections <ArrowRight size={14}/></Link></div>
           <div className="mt-9 grid gap-4 md:grid-cols-3">
             <button onClick={() => {setGenre("Drama");document.getElementById("discover")?.scrollIntoView({behavior:"smooth"});}} className="group relative min-h-[230px] overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(135deg,#44372c,#161719_70%)] p-7 text-left"><span className="eyebrow">01 / Intimate stories</span><span className="absolute bottom-7 left-7 right-7 flex items-end justify-between"><span className="font-['Manrope'] text-2xl font-semibold">The human<br/>experience</span><ArrowRight className="transition group-hover:translate-x-1" /></span></button>
             <button onClick={() => {setGenre("Animation");document.getElementById("discover")?.scrollIntoView({behavior:"smooth"});}} className="group relative min-h-[230px] overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(135deg,#243c42,#14191c_70%)] p-7 text-left"><span className="eyebrow">02 / Imagination unleashed</span><span className="absolute bottom-7 left-7 right-7 flex items-end justify-between"><span className="font-['Manrope'] text-2xl font-semibold">Worlds of<br/>wonder</span><ArrowRight className="transition group-hover:translate-x-1" /></span></button>
