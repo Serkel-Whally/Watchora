@@ -25,6 +25,13 @@ export default function CatalogueImportReview() {
   );
 
   const processImport = (value: string) => {
+    if (new Blob([value]).size > 2 * 1024 * 1024) {
+      setError("Import content must be smaller than 2 MB.");
+      setResult(null);
+      setSelectedIds([]);
+      setReviewConfirmed(false);
+      return;
+    }
     setSource(value);
     const next = importCatalogueJson(value);
     setResult(next);
@@ -65,7 +72,7 @@ export default function CatalogueImportReview() {
     anchor.href = url;
     anchor.download = "watchora-approved-catalogue.json";
     anchor.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
@@ -95,7 +102,7 @@ export default function CatalogueImportReview() {
             <div className="mt-4 flex flex-wrap gap-3">
               <button onClick={() => processImport(source)} disabled={!source.trim()} className="rounded-full bg-[#d9b779] px-5 py-2.5 text-xs font-semibold text-[#17130d] transition hover:bg-[#e8c990] disabled:cursor-not-allowed disabled:opacity-40">Validate JSON</button>
               <button onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-xs text-white/65 transition hover:border-white/30 hover:text-white"><FileUp size={14}/> Choose file</button>
-              <input ref={fileRef} type="file" accept=".json,application/json" className="hidden" onChange={(event) => handleFile(event.target.files?.[0])}/>
+              <input ref={fileRef} type="file" accept=".json,application/json" className="hidden" onChange={(event) => {void handleFile(event.currentTarget.files?.[0]);event.currentTarget.value="";}}/>
               <button onClick={() => {setSource("");setResult(null);setSelectedIds([]);setReviewConfirmed(false);setError("");if(fileRef.current)fileRef.current.value="";}} className="rounded-full px-3 py-2.5 text-xs text-white/35 hover:text-white/70">Reset</button>
             </div>
             {error && <p role="alert" className="mt-3 text-xs text-rose-300">{error}</p>}
