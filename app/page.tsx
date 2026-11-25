@@ -32,7 +32,8 @@ export default function Home() {
   useEffect(() => { try { setSaved(JSON.parse(localStorage.getItem("watchora-watchlist") || "[]")); } catch { setSaved([]); } }, []);
   const [showMood, setShowMood] = useState(false);
   const [mood, setMood] = useState("Something uplifting");
-  const filtered = useMemo(() => films.filter((f) => !homepageEditorial.featuredTitleIds.includes(f.id) && (genre === "All" || f.genre === genre) && (f.title.toLowerCase().includes(query.toLowerCase()) || f.country.toLowerCase().includes(query.toLowerCase()))), [genre, query]);
+  const featuredTitleIds = new Set<number>(homepageEditorial.featuredTitleIds);
+  const filtered = useMemo(() => films.filter((f) => !featuredTitleIds.has(f.id) && (genre === "All" || f.genre === genre) && (f.title.toLowerCase().includes(query.toLowerCase()) || f.country.toLowerCase().includes(query.toLowerCase()))), [genre, query]);
   const featuredTitles = useMemo(() => getHomepageFeaturedTitles(), []);
   const homepageCollections = useMemo(() => getHomepageCollections(), []);
   const collectionTones = { warm: "from-[#44372c] to-[#161719]", cool: "from-[#243c42] to-[#14191c]", rose: "from-[#493039] to-[#171518]", gold: "from-[#62502f] to-[#30291d]" };
