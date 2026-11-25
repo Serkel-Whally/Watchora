@@ -1,13 +1,14 @@
 import type { Film } from "@/lib/catalogue";
 import { curatedCollections, type CuratedCollection } from "@/lib/curated-collections";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
+import { validateEditorialConfiguration } from "@/lib/editorial-validation";
 
 /**
  * Homepage merchandising is configured here instead of being hard-coded into
  * the page component. Keep IDs aligned with the active catalogue provider.
  */
 export const homepageEditorial = {
-  featuredTitleIds: [4,  6, 3, 1],
+  featuredTitleIds: [4, 6, 3, 1],
   collectionSlugs: [
     "quietly-extraordinary",
     "worlds-of-wonder",
@@ -19,6 +20,23 @@ export const homepageEditorial = {
 } as const;
 
 const catalogue = getCatalogueProvider();
+
+// Editorial reference errors fail the build instead of silently shipping broken
+// homepage slots or collections. This is intentionally read-only: no public
+// unauthenticated editing endpoint is introduced.
+const editorialIssues = validateEditorialConfiguration({
+  config: homepageEditorial,
+  titles: catalogue.getAll(),
+  collections: curatedCollections,
+});
+
+if (editorialIssues.length > 0) {
+  throw new Error(
+    `Invalid Watchora editorial configuration:\n${editorialIssues
+      .map((issue) => `- [${issue.code}] ${issue.reference}: ${issue.message}`)
+      .join("\n")}`,
+  );
+}
 
 function unique<T>(items: T[], key: (item: T) => string | number): T[] {
   const seen = new Set<string | number>();
