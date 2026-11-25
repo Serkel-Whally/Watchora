@@ -18,10 +18,10 @@ const catalogue = getCatalogueProvider();
 function FilmCard({ film, saved, ready, onSave }: { film: Film; saved: boolean; ready: boolean; onSave: (id: number) => void }) {
   return (
     <article className="min-w-0">
-      <Link href={`/title/${film.id}`} aria-label={`View ${film.title}`} className="poster group block">
+      <Link href={`/title/${film.id}`} aria-label={`View ${film.title}`} className="poster group block ring-1 ring-white/[.06] transition duration-300 hover:-translate-y-1 hover:ring-[#d9b779]/50 hover:shadow-[0_18px_48px_rgba(0,0,0,.38)]">
         <img src={film.image} alt={`${film.title} poster`} loading="lazy" onError={(e) => { e.currentTarget.style.opacity = "0"; }} />
-        <span className="absolute left-3 top-3 z-10 rounded bg-black/65 px-2 py-1 text-[10px] font-semibold tracking-wider text-white">{film.kind.toUpperCase()}</span>
-        <span className="absolute bottom-3 left-3 right-3 z-10 text-sm font-semibold leading-tight text-white">{film.title}</span>
+        <span className="absolute left-3 top-3 z-10 rounded-full border border-white/15 bg-black/55 px-2.5 py-1 text-[9px] font-bold tracking-[.16em] text-white/90 backdrop-blur-md">{film.kind.toUpperCase()}</span>
+        <span className="absolute bottom-3 left-3 right-3 z-10"><span className="block font-[Manrope] text-base font-bold leading-tight tracking-[-.025em] text-white sm:text-lg">{film.title}</span><span className="mt-1 block text-[10px] font-medium tracking-wide text-white/65">{film.year} <span className="px-1 text-white/35">/</span> {film.country}</span></span>
       </Link>
       <div className="mt-3 flex items-center justify-between gap-2">
         <div className="min-w-0"><p className="truncate text-xs text-white/80">{film.year} <span className="text-white/30">·</span> {film.genre}</p><p className="mt-1 text-[11px] text-white/40">{film.country}</p></div>
@@ -67,7 +67,7 @@ export default function Home() {
     <main className="min-h-screen">
       <SiteHeader overlay />
       <section className="hero-art relative flex min-h-[540px] items-end bg-[#15171b] pb-14 pt-28 md:min-h-[620px] md:pb-16" style={{ backgroundImage: "linear-gradient(90deg, #090a0d 0%, rgba(9,10,13,.93) 24%, rgba(9,10,13,.52) 58%, rgba(9,10,13,.2) 100%), linear-gradient(0deg, #090a0d 0%, transparent 48%), url('https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" }}>
-        <div className="shell relative z-10 grid grid-cols-1 items-end gap-12 md:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="shell relative z-10 grid grid-cols-1 items-end gap-8 md:grid-cols-[minmax(0,1fr)_300px]">
           <div className="max-w-[690px]">
             <div className="mb-6 flex items-center gap-3"><span className="h-px w-8 bg-[#d9b779]"/><span className="eyebrow">A world of stories awaits</span></div>
             <h1 className="font-['Manrope'] text-[clamp(3.1rem,7vw,6.3rem)] font-semibold leading-[.99] tracking-[-.075em]">Find your next <span className="text-[#d9b779]">favourite.</span></h1>
@@ -77,7 +77,7 @@ export default function Home() {
               <button onClick={() => setShowMood(true)} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[.04] px-6 py-3.5 text-xs font-semibold text-white transition hover:bg-white/10"><Sparkles size={14}/> Find by mood</button>
             </div>
           </div>
-          <div className="hidden rounded-2xl border border-white/10 bg-black/25 p-5 backdrop-blur-md md:block"><p className="eyebrow">The Watchora approach</p><p className="mt-3 font-['Manrope'] text-lg font-semibold leading-snug">Great stories don’t have borders.</p><p className="mt-2 text-xs leading-5 text-white/50">Discover acclaimed cinema, hidden gems and fresh perspectives from around the globe.</p><div className="mt-5 flex items-center gap-2 text-[11px] text-[#d9b779]"><Globe2 size={13}/> One world. Endless stories.</div></div>
+          <div className="max-w-[420px] border-l border-[#d9b779]/50 pl-4 md:ml-auto md:max-w-[270px] md:rounded-2xl md:border md:border-white/10 md:bg-black/25 md:p-5 md:backdrop-blur-md"><p className="eyebrow">The Watchora approach</p><p className="mt-3 font-['Manrope'] text-lg font-semibold leading-snug">Great stories don’t have borders.</p><p className="mt-2 text-xs leading-5 text-white/50">Discover acclaimed cinema, hidden gems and fresh perspectives from around the globe.</p><div className="mt-5 flex items-center gap-2 text-[11px] text-[#d9b779]"><Globe2 size={13}/> One world. Endless stories.</div></div>
         </div>
         <div className="absolute bottom-7 right-8 hidden items-center gap-2 text-[10px] uppercase tracking-[.2em] text-white/35 lg:flex"><span>Scroll to discover</span><ArrowDown size={13}/></div>
       </section>
