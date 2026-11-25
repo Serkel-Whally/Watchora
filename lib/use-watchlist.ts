@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
 
 const STORAGE_KEY = "watchora-watchlist";
+const catalogue = getCatalogueProvider();
 
 function validIds(value: unknown): number[] {
   if (!Array.isArray(value)) return [];
-  return Array.from(new Set(value.filter((id): id is number => Number.isSafeInteger(id) && id > 0)));
+  return Array.from(new Set(value.filter((id): id is number => Number.isSafeInteger(id) && id > 0 && Boolean(catalogue.getById(id))))).slice(0, 500);
 }
 
 /**
