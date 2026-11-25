@@ -10,9 +10,10 @@ type Notification = {
   id: string;
   actor_id: string | null;
   actor_name: string | null;
-  notification_type: "review_approved" | "review_rejected" | "review_helpful";
+  notification_type: "review_approved" | "review_rejected" | "review_helpful" | "review_comment" | "review_reply";
   title_id: number;
   review_id: string | null;
+  comment_id: string | null;
   created_at: string;
   read_at: string | null;
 };
@@ -20,6 +21,8 @@ type Notification = {
 function notificationCopy(item: Notification) {
   if (item.notification_type === "review_approved") return { title: "Your review is published", body: "Your review has been approved and is now visible to the Watchora community.", icon: Star };
   if (item.notification_type === "review_rejected") return { title: "A review needs attention", body: "Your review was not approved for publication. You can review the community guidelines before submitting another.", icon: MessageCircle };
+  if (item.notification_type === "review_comment") return { title: "New comment on your review", body: `${item.actor_name || "A Watchora member"} joined the discussion on your review.`, icon: MessageCircle };
+  if (item.notification_type === "review_reply") return { title: "New reply to your comment", body: `${item.actor_name || "A Watchora member"} replied to your comment.`, icon: MessageCircle };
   return { title: "Your review was found helpful", body: `${item.actor_name || "A Watchora member"} found your review helpful.`, icon: ThumbsUp };
 }
 
@@ -118,6 +121,6 @@ export default function NotificationsPage() {
         </div>
       </article>;
     })}</div>
-    : <div className="mt-9 rounded-2xl border border-white/10 px-6 py-16 text-center"><Bell size={25} className="mx-auto text-[#d9b779]"/><h2 className="mt-5 font-['Manrope'] text-xl font-semibold">You’re all caught up.</h2><p className="mt-2 text-sm text-white/40">We’ll let you know when a review is approved or someone finds it helpful.</p><Link href="/#discover" className="mt-5 inline-flex text-xs text-[#d9b779]">Explore Watchora</Link></div>}
+    : <div className="mt-9 rounded-2xl border border-white/10 px-6 py-16 text-center"><Bell size={25} className="mx-auto text-[#d9b779]"/><h2 className="mt-5 font-['Manrope'] text-xl font-semibold">You’re all caught up.</h2><p className="mt-2 text-sm text-white/40">We’ll let you know when a review is approved, someone finds it helpful, or a discussion gets a new comment.</p><Link href="/#discover" className="mt-5 inline-flex text-xs text-[#d9b779]">Explore Watchora</Link></div>}
   </section></main>;
 }
