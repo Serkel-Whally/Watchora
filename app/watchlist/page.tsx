@@ -8,7 +8,7 @@ import { films } from "@/lib/catalogue";
 import { useWatchlist } from "@/lib/use-watchlist";
 
 export default function WatchlistPage() {
-  const { saved, ready, synced, remove } = useWatchlist();
+  const { saved, ready, synced, syncAvailable, remove } = useWatchlist();
   const items = useMemo(() => films.filter((film) => saved.includes(film.id)), [saved]);
 
   return <main className="min-h-screen">
@@ -25,7 +25,7 @@ export default function WatchlistPage() {
           <Link href={`/title/${film.id}`} className="poster group block"><img src={film.image} alt={`${film.title} poster`} loading="lazy" onError={(event) => { event.currentTarget.style.opacity = "0"; }}/><span className="absolute bottom-3 left-3 right-3 z-10 text-sm font-semibold">{film.title}</span></Link>
           <div className="mt-3 flex items-center justify-between gap-2"><div><p className="text-xs text-white/65">{film.year} · {film.genre}</p><p className="mt-1 text-[11px] text-white/35">{film.country}</p></div><button onClick={() => remove(film.id)} className="rounded-full border border-white/10 p-2 text-white/50 hover:border-[#d9b779] hover:text-[#d9b779]" aria-label={`Remove ${film.title} from watchlist`}><Bookmark size={14} fill="currentColor"/></button></div>
         </article>)}</div>
-        <p className="mt-8 text-[11px] text-white/30">{synced ? "Your saved titles are available wherever you sign in." : "Sign in to sync this list across your devices. Your current saves will be merged automatically."}</p>
+        <p className="mt-8 text-[11px] text-white/30">{synced ? "Your saved titles are available wherever you sign in." : syncAvailable ? "Sign in to sync this list across your devices. Your current saves will be merged automatically." : "Your saves are stored on this device. Account sync will be available when Watchora accounts are configured."} {syncAvailable && !synced && <Link href="/sign-in?next=%2Fwatchlist" className="ml-1 text-[#d9b779] hover:text-[#edce94]">Sign in</Link>}</p>
       </> : <div className="mt-10 rounded-2xl border border-white/10 bg-white/[.025] px-6 py-16 text-center"><Bookmark size={25} className="mx-auto text-[#d9b779]"/><h2 className="mt-5 font-['Manrope'] text-xl font-semibold">Your list is waiting for a story.</h2><p className="mt-2 text-sm text-white/40">Save films and series while exploring to keep them close.</p><Link href="/#discover" className="mt-6 inline-flex rounded-full bg-[#d9b779] px-5 py-3 text-xs font-bold text-[#17130d]">Explore titles</Link></div>}
     </section>
   </main>;
