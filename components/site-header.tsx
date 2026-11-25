@@ -7,6 +7,7 @@ import { Menu, X, ArrowRight } from "lucide-react";
 const links = [
   { href: "/explore", label: "Discover" },
   { href: "/collections", label: "Collections" },
+  { href: "/community", label: "Community" },
   { href: "/preferences", label: "Preferences" },
   { href: "/watchlist", label: "Watchlist" },
   { href: "/profile", label: "My profile" },
