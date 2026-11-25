@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Menu, X, ArrowRight } from "lucide-react";
 
 const links = [
-  { href: "/explore", label: "Discover" },
+  { href: "/#discover", label: "Discover" },
   { href: "/collections", label: "Collections" },
   { href: "/community", label: "Community" },
+  { href: "/activity", label: "Activity" },
   { href: "/preferences", label: "Preferences" },
   { href: "/watchlist", label: "Watchlist" },
   { href: "/profile", label: "My profile" },
@@ -56,7 +57,7 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           <div className="mt-auto border-t border-white/10 pt-6">
             <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#d9b779]">A world of stories awaits</p>
             <p className="mt-2 text-xs leading-5 text-white/40">Discover something worth watching, from every corner of the world.</p>
-            <Link href="/explore" onClick={() => setOpen(false)} className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-[#d9b779]">Explore titles <ArrowRight size={14}/></Link>
+            <Link href="/#discover" onClick={() => setOpen(false)} className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-[#d9b779]">Explore titles <ArrowRight size={14}/></Link>
           </div>
         </aside>
       </div>
