@@ -10,8 +10,8 @@ import SiteHeader from "@/components/site-header";
 import { getHomepageCollections, getHomepageFeaturedTitles, homepageEditorial } from "@/lib/editorial";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
 import { filterCatalogue, getFilmDecade, paginateCatalogue, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
+import { useWatchlist } from "@/lib/use-watchlist";
 
-const WATCHLIST_KEY = "watchora-watchlist";
 const PAGE_SIZE = 8;
 const catalogue = getCatalogueProvider();
 
@@ -40,18 +40,11 @@ export default function Home() {
   const [decade, setDecade] = useState("All");
   const [sort, setSort] = useState<CatalogueSort>("featured");
   const [page, setPage] = useState(1);
-  const [saved, setSaved] = useState<number[]>([]);
-  const [ready, setReady] = useState(false);
+  const { saved, ready, toggle: toggleSave } = useWatchlist();
   const [showMood, setShowMood] = useState(false);
   const [mood, setMood] = useState("Something uplifting");
 
-  useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || "[]");
-      if (Array.isArray(stored)) setSaved(stored.filter((id): id is number => Number.isInteger(id)));
-    } catch { setSaved([]); }
-    setReady(true);
-  }, []);
+);
 
   const countries = useMemo(() => catalogue.getCountries(), []);
   const languageOptions = useMemo(() => Array.from(new Set(catalogue.getAll().map((title) => title.originalLanguage).filter((value): value is string => Boolean(value)))).sort(), []);
@@ -64,12 +57,6 @@ export default function Home() {
   const collectionTones = { warm: "from-[#44372c] to-[#161719]", cool: "from-[#243c42] to-[#14191c]", rose: "from-[#493039] to-[#171518]", gold: "from-[#62502f] to-[#30291d]" };
 
   useEffect(() => { if (page !== pagination.page) setPage(pagination.page); }, [page, pagination.page]);
-
-  const toggleSave = (id: number) => setSaved((current) => {
-    const next = current.includes(id) ? current.filter((value) => value !== id) : [...current, id];
-    localStorage.setItem(WATCHLIST_KEY, JSON.stringify(next));
-    return next;
-  });
 
   const clearFilters = () => {
     setQuery(""); setGenre("All"); setKind("All"); setCountry("All");
