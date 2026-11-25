@@ -44,8 +44,6 @@ export default function Home() {
   const [showMood, setShowMood] = useState(false);
   const [mood, setMood] = useState("Something uplifting");
 
-);
-
   const countries = useMemo(() => catalogue.getCountries(), []);
   const languageOptions = useMemo(() => Array.from(new Set(catalogue.getAll().map((title) => title.originalLanguage).filter((value): value is string => Boolean(value)))).sort(), []);
   const decadeOptions = useMemo(() => Array.from(new Set(catalogue.getAll().map((title) => getFilmDecade(title.year)))).sort(), []);
