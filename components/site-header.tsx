@@ -11,7 +11,7 @@ const links = [
   { href: "/watchlist", label: "Watchlist" },
 ];
 
-export default function SiteHeader() {
+export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function SiteHeader() {
   }, [open]);
 
   return (
-    <header className="relative z-30 border-b border-white/[.08]">
+    <header className={`${overlay ? "absolute left-0 right-0 top-0 z-50 bg-black/20 backdrop-blur-md" : "relative z-30"} border-b border-white/[.08]`}>
       <div className="shell flex h-[76px] items-center justify-between">
         <Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link>
         <nav className="hidden items-center gap-7 text-xs text-white/60 md:flex" aria-label="Main navigation">
