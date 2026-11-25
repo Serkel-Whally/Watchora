@@ -16,6 +16,7 @@ A premium, worldwide movie and TV discovery experience. Watchora helps people de
 - `lib/catalogue-normalizer.ts` validates and converts source-neutral records into the internal title shape, including HTTPS artwork and 0–10 rating bounds.
 - `lib/catalogue-validation.ts` reports editorial/data-quality issues without mutating catalogue records.
 - `lib/catalogue-import.ts` safely parses canonical JSON imports, rejects invalid records and duplicate IDs, and returns quality warnings. It is a pure validation/import utility; it does not write to the live catalogue or database.
+- `lib/catalogue-reconciliation.ts` compares reviewed imports against an existing catalogue snapshot and rejects ID collisions rather than silently overwriting existing titles. A future publisher must run this check server-side against the authoritative data immediately before publishing.
 - `data/catalogue-import.example.json` documents the version 1 import format.
 
 ### Import format
@@ -47,6 +48,11 @@ The importer keeps the first valid occurrence of an ID and rejects later duplica
 - Editorial configuration is currently changed through reviewed Git commits. There is deliberately no public write interface or unauthenticated admin route. A role-protected editor should only be added alongside a real authentication and authorization layer.
 
 Vendor-specific credentials, API calls, caching and licensing checks belong in a server-side adapter, not in client components. Do not expose provider secrets in `NEXT_PUBLIC_*` variables.
+
+## Discovery interface notes
+- Collection cards link to dedicated `/collections/[slug]` editorial pages, with title cards presented as a horizontal, snap-scrolling shelf on smaller screens and a grid on wide screens.
+- Homepage featured titles and the homepage sample catalogue use horizontal shelves; the full Explore page remains a filterable grid for scanning results.
+- Mobile navigation is a right-edge drawer that slides left into view, locks background scrolling while open, closes with Escape or backdrop tap, and stacks navigation links vertically.
 
 ## Current limitations
 The included catalogue is a small illustrative preview, not a licensed or comprehensive worldwide database. Ratings and artwork are not presented as verified live metadata. Streaming availability is not connected. Before launch with real catalogue data, secure appropriate metadata and artwork rights, document attribution requirements, and select a provider whose terms permit the intended commercial use.
