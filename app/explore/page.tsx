@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Bookmark, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
-import { films, genres } from "@/lib/catalogue";
+import { films, genres, type TitleKind } from "@/lib/catalogue";
 import { filterCatalogue, getCatalogueCountries, paginateCatalogue, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
 
 const WATCHLIST_KEY = "watchora-watchlist";
@@ -12,7 +12,7 @@ const PAGE_SIZE = 6;
 export default function ExplorePage() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState("All");
-  const [kind, setKind] = useState("All");
+  const [kind, setKind] = useState<TitleKind | "All">("All");
   const [country, setCountry] = useState("All");
   const [sort, setSort] = useState<CatalogueSort>("featured");
   const [page, setPage] = useState(1);
@@ -63,9 +63,9 @@ export default function ExplorePage() {
       <p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Find films and series by title, genre, format or country. This is an illustrative sample collection, not a live worldwide database.</p>
       <div className="mt-9 grid gap-3 md:grid-cols-[minmax(0,1fr)_150px_170px_170px]">
         <label className="flex h-12 items-center gap-3 rounded-xl border border-white/10 bg-white/[.035] px-4"><Search size={16} className="shrink-0 text-white/35"/><input value={query} onChange={e => {setQuery(e.target.value);setPage(1);}} placeholder="Search titles, countries, genres..." className="w-full bg-transparent text-sm outline-none placeholder:text-white/30"/></label>
-        <select aria-label="Format" value={kind} onChange={e => {setKind(e.target.value as typeof kind);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="All">All formats</option><option value="Film">Films</option><option value="Series">Series</option></select>
+        <select aria-label="Format" value={kind} onChange={e => {setKind(e.target.value as TitleKind | "All");setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="All">All formats</option><option value="Film">Films</option><option value="Series">Series</option></select>
         <select aria-label="Country" value={country} onChange={e => {setCountry(e.target.value);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="All">All countries</option>{countries.map(value => <option key={value} value={value}>{value}</option>)}</select>
-        <select aria-label="Sort titles" value={sort} onChange={e => {setSort(e.target.value);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="featured">Featured</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Highest rated</option></select>
+        <select aria-label="Sort titles" value={sort} onChange={e => {setSort(e.target.value as CatalogueSort);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="featured">Featured</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Highest rated</option></select>
       </div>
       <div className="hide-scrollbar mt-5 flex gap-2 overflow-x-auto pb-2">{genres.map(g => <button key={g} onClick={() => {setGenre(g);setPage(1);}} aria-pressed={genre === g} className={`shrink-0 rounded-full border px-4 py-2 text-xs transition ${genre === g ? "border-[#d9b779] bg-[#d9b779] text-[#17130d]" : "border-white/10 text-white/55 hover:border-white/30"}`}>{g}</button>)}</div>
       <div className="mt-7 flex flex-wrap items-center justify-between gap-3 text-xs text-white/35"><span>{pagination.totalItems ? `Showing ${pagination.startIndex}–${pagination.endIndex} of ${pagination.totalItems} sample titles` : "0 sample titles"}</span>{hasFilters ? <button onClick={clearFilters} className="inline-flex items-center gap-1.5 text-[#d9b779] hover:text-[#edce94]"><X size={13}/> Clear filters</button> : <span>Catalogue preview</span>}</div>
