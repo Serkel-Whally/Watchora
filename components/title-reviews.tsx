@@ -30,7 +30,10 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-  const [configured, setConfigured] = useState(true);\n  const [reportingId, setReportingId] = useState("");\n  const [reportReason, setReportReason] = useState("spam");\n  const [reportDetails, setReportDetails] = useState("");
+  const [configured, setConfigured] = useState(true);
+  const [reportingId, setReportingId] = useState("");
+  const [reportReason, setReportReason] = useState("spam");
+  const [reportDetails, setReportDetails] = useState("");
 
   async function loadReviews() {
     setReady(false);
