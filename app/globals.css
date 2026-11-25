@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; --bg: #090a0d; --muted: #999ba4; --gold: #d9b779; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: #f5f4f1; font-family: 'DM Sans', sans-serif; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+::selection { background: #d9b77955; }
+.shell { width: min(1240px, calc(100% - 64px)); margin: 0 auto; }
+.eyebrow { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; }
+.hero-art { background-size: cover; background-position: center 35%; }
+.poster { position: relative; overflow: hidden; border-radius: 10px; background: #191b20; aspect-ratio: 2 / 3; }
+.poster img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.poster:hover img { transform: scale(1.045); }
+.poster:after { content: ''; position: absolute; inset: 55% 0 0; background: linear-gradient(transparent, rgba(0,0,0,.82)); pointer-events: none; }
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+@media (max-width: 700px) { .shell { width: min(100% - 36px, 1240px); } }
