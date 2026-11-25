@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3, Globe2, Languages, Star } from "lucide-react";
 import WatchlistToggle from "@/components/watchlist-toggle";
 import TitleViewTracker from "@/components/title-view-tracker";
+import TitleReviews from "@/components/title-reviews";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
 
 const catalogue = getCatalogueProvider();
@@ -52,7 +53,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
             <div className="mt-8 flex flex-wrap gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-4 py-2.5 text-xs text-white/55"><Globe2 size={13}/> {film.country}</span>
             </div>
-            <div className="mt-9 flex flex-wrap items-center gap-3"><WatchlistToggle id={film.id} title={film.title}/></div>
+            <div className="mt-9 flex flex-wrap items-center gap-3"><WatchlistToggle id={film.id} title={film.title}/><Link href="#reviews" className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-medium text-white/65 transition hover:border-white/25 hover:text-white">Read & write reviews</Link></div>
             <div className="mt-10 rounded-2xl border border-[#d9b779]/20 bg-[#d9b779]/[.05] p-5">
               <p className="text-sm font-semibold text-white/85">Where to watch</p>
               <p className="mt-2 text-xs leading-6 text-white/45">Watchora helps you discover stories; it does not host or stream films. Viewing options are not connected in this preview. We’ll only list providers when a reliable, licensed availability source is integrated.</p>
@@ -60,6 +61,8 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </section>
+
+      <TitleReviews titleId={film.id} title={film.title} />
 
       {related.length > 0 && <section className="border-t border-white/[.08] bg-[#0d0f13] py-14 md:py-16">
         <div className="shell">
