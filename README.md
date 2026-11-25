@@ -32,6 +32,13 @@ Each title must use Watchora's canonical fields: `id`, `title`, `year`, `kind` (
 
 The importer keeps the first valid occurrence of an ID and rejects later duplicates. It returns rejected-record reasons separately from quality warnings, so an editorial review step can distinguish invalid data from incomplete optional metadata. It deliberately performs no network requests, file writes or live catalogue replacement.
 
+
+### Local import review
+- Visit `/catalogue-review` to validate a JSON file in the browser, inspect accepted/rejected records and quality warnings, select records, and export a reviewed version 1 JSON file.
+- The review page does not upload files, persist data, or publish changes. It is unlisted, not indexed, and is **not** an authenticated admin console.
+- Imported IDs that already exist in the current seed catalogue are flagged and excluded from the approved export. This check is only against the in-repository seed data; a future database-backed publishing workflow must repeat conflict checks against the authoritative catalogue at commit time.
+- Publishing remains a separate reviewed Git operation. Never treat a browser export as authorization to replace production data.
+
 ## Editorial workflow and safety
 - `lib/editorial.ts` is the single source of truth for homepage featured titles, selected collections and section copy.
 - `lib/curated-collections.ts` contains the editorial collection registry and each collection's title references.
