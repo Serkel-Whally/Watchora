@@ -17,6 +17,11 @@ create index if not exists review_moderation_audit_report_idx
 
 alter table public.review_moderation_audit enable row level security;
 revoke all on public.review_moderation_audit from anon, authenticated;
+grant select on public.review_moderation_audit to authenticated;
+drop policy if exists "Admins can read moderation audit" on public.review_moderation_audit;
+create policy "Admins can read moderation audit" on public.review_moderation_audit
+  for select to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 create or replace function public.admin_process_review_report(p_report_id uuid, p_action text)
 returns jsonb
