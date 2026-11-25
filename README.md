@@ -54,6 +54,20 @@ Vendor-specific credentials, API calls, caching and licensing checks belong in a
 - Homepage featured titles and the homepage sample catalogue use horizontal shelves; the full Explore page remains a filterable grid for scanning results.
 - Mobile navigation is a right-edge drawer that slides left into view, locks background scrolling while open, closes with Escape or backdrop tap, and stacks navigation links vertically.
 
+## Community reviews and authentication
+
+- Title pages use Supabase Auth passwordless email sign-in and a Supabase Postgres review store.
+- Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from the Supabase project.
+- Apply `supabase/migrations/202611250001_reviews_and_profiles.sql` in the Supabase SQL editor before enabling the feature.
+- In Supabase Authentication, configure the site URL and add the deployed Watchora domain plus local development callback URLs to the allowed redirect URLs. Configure SMTP/custom email delivery before inviting real users.
+- Users may submit one review per title. Reviews are created with `pending` status; only approved reviews are returned to public visitors. Users can remove their own review, but cannot change its rating, text or moderation status after submission.
+- Moderation is intentionally manual in the Supabase dashboard for this MVP. Review the `title_reviews` table and change a legitimate entry's `status` from `pending` to `approved`; use `rejected` for content that should not be published. Never grant public clients permission to approve reviews.
+- The API validates title IDs against the current catalogue, validates rating and text length, requires an authenticated user to submit, and relies on Postgres row-level security for ownership and public visibility.
+- Do not expose a Supabase service-role key in browser variables. The public anon/publishable key is intended for the browser with RLS enabled.
+- The app displays public community averages from approved reviews only. Sample catalogue ratings remain separately labelled as illustrative.
+
+Before opening reviews widely, configure Supabase email delivery, add rate limiting/abuse monitoring, publish community guidelines and a privacy notice, and test account deletion and moderation procedures. A future moderation dashboard should be added only behind verified admin authorization.
+
 ## Current limitations
 The included catalogue is a small illustrative preview, not a licensed or comprehensive worldwide database. Ratings and artwork are not presented as verified live metadata. Streaming availability is not connected. Before launch with real catalogue data, secure appropriate metadata and artwork rights, document attribution requirements, and select a provider whose terms permit the intended commercial use.
 
