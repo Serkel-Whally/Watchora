@@ -6,9 +6,14 @@ export type CatalogueFilters = {
   kind?: TitleKind | "All";
   country?: string;
   language?: string;
+  decade?: string;
 };
 
 export type CatalogueSort = "featured" | "newest" | "oldest" | "rating";
+
+export function getFilmDecade(year: number): string {
+  return `${Math.floor(year / 10) * 10}s`;
+}
 
 export function filterCatalogue(titles: Film[], filters: CatalogueFilters): Film[] {
   const query = filters.query?.trim().toLocaleLowerCase() ?? "";
@@ -26,7 +31,8 @@ export function filterCatalogue(titles: Film[], filters: CatalogueFilters): Film
       && (!filters.genre || filters.genre === "All" || title.genre === filters.genre)
       && (!filters.kind || filters.kind === "All" || title.kind === filters.kind)
       && (!filters.country || filters.country === "All" || title.country === filters.country)
-      && (!filters.language || filters.language === "All" || title.originalLanguage === filters.language);
+      && (!filters.language || filters.language === "All" || title.originalLanguage === filters.language)
+      && (!filters.decade || filters.decade === "All" || getFilmDecade(title.year) === filters.decade);
   });
 }
 
