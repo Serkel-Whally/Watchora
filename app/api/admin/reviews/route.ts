@@ -3,7 +3,7 @@ import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase
 
 export const dynamic = "force-dynamic";
 
-async function adminClient() {
+async function adminClient(): Promise<{ supabase?: Awaited<ReturnType<typeof createSupabaseServerClient>>; response?: NextResponse }> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { response: NextResponse.json({ error: "Sign in required." }, { status: 401 }) };
