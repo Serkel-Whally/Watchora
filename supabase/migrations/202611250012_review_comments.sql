@@ -27,17 +27,36 @@ create index if not exists review_comments_author_idx
 
 alter table public.review_comments enable row level security;
 revoke all on public.review_comments from anon, authenticated;
-grant select, insert, delete on public.review_comments to authenticated;
+grant select on public.review_comments to anon, authenticated;
+grant insert, delete on public.review_comments to authenticated;
 grant update (status) on public.review_comments to authenticated;
 
 drop policy if exists "Members can read approved or own comments" on public.review_comments;
 create policy "Members can read approved or own comments"
-  on public.review_comments for select to authenticated
+  on public.review_comments for select to anon, authenticated
   using (
     status = 'approved'
-    or author_id = auth.uid()
+    or (auth.uid() is not null and author_id = auth.uid())
     or (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
   );
+
+create or replace function public.can_reply_to_review_comment(p_parent_id uuid, p_review_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.review_comments parent
+    where parent.id = p_parent_id
+      and parent.review_id = p_review_id
+      and parent.parent_id is null
+      and parent.status = 'approved'
+  );
+$$;
+revoke all on function public.can_reply_to_review_comment(uuid, uuid) from public, anon;
+grant execute on function public.can_reply_to_review_comment(uuid, uuid) to authenticated;
 
 drop policy if exists "Members can add moderated comments" on public.review_comments;
 create policy "Members can add moderated comments"
@@ -49,16 +68,7 @@ create policy "Members can add moderated comments"
       select 1 from public.title_reviews r
       where r.id = review_id and r.status = 'approved'
     )
-    and (
-      parent_id is null
-      or exists (
-        select 1 from public.review_comments parent
-        where parent.id = parent_id
-          and parent.review_id = review_comments.review_id
-          and parent.parent_id is null
-          and parent.status = 'approved'
-      )
-    )
+    and (parent_id is null or public.can_reply_to_review_comment(parent_id, review_id))
   );
 
 drop policy if exists "Members can remove pending own comments" on public.review_comments;
