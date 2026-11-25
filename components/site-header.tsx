@@ -39,7 +39,7 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           {open ? <X size={19}/> : <Menu size={19}/>}
         </button>
       </div>
-      <div className={`fixed inset-0 z-[70] md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
+      <div className={`fixed inset-0 z-[70] overflow-hidden md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
         <button tabIndex={open ? 0 : -1} onClick={() => setOpen(false)} aria-label="Close navigation menu" className={`absolute inset-0 bg-black/75 transition-opacity duration-300 motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`}/>
         <aside id="watchora-site-mobile-menu" aria-label="Mobile navigation" className={`absolute right-0 top-0 flex h-full w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0b0c0f] px-7 pb-10 pt-7 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none ${open ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex items-center justify-between border-b border-white/10 pb-7">
