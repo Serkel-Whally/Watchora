@@ -16,6 +16,13 @@ A premium, worldwide movie and TV discovery experience. Watchora helps people de
 - `lib/catalogue-normalizer.ts` validates and converts source-neutral records into the internal title shape. A future vendor adapter should map its response to canonical fields before calling this function.
 - `lib/catalogue-validation.ts` reports editorial/data-quality issues without mutating catalogue records.
 
+## Editorial workflow and safety
+- `lib/editorial.ts` is the single source of truth for homepage featured titles, selected collections and section copy.
+- `lib/curated-collections.ts` contains the editorial collection registry and each collection's title references.
+- `lib/editorial-validation.ts` checks duplicate and unresolved title/collection references.
+- Invalid editorial references fail the Next.js build, so broken homepage slots and collection links are caught before deployment.
+- Editorial configuration is currently changed through reviewed Git commits. There is deliberately no public write interface or unauthenticated admin route. A role-protected editor should only be added alongside a real authentication and authorization layer.
+
 The normalizer deliberately rejects incomplete records and non-HTTPS artwork. Vendor-specific credentials, API calls, caching and licensing checks belong in a server-side adapter, not in client components. Do not expose provider secrets in `NEXT_PUBLIC_*` variables.
 
 ## Current limitations
