@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Bookmark, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { genres, type TitleKind } from "@/lib/catalogue";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
-import { filterCatalogue, paginateCatalogue, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
+import { filterCatalogue, getFilmDecade, paginateCatalogue, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
 
 const WATCHLIST_KEY = "watchora-watchlist";
 const PAGE_SIZE = 6;
@@ -17,6 +17,7 @@ export default function ExplorePage() {
   const [kind, setKind] = useState<TitleKind | "All">("All");
   const [country, setCountry] = useState("All");
   const [language, setLanguage] = useState("All");
+  const [decade, setDecade] = useState("All");
   const [sort, setSort] = useState<CatalogueSort>("featured");
   const [page, setPage] = useState(1);
   const [saved, setSaved] = useState<number[]>([]);
@@ -34,9 +35,10 @@ export default function ExplorePage() {
 
   const countries = useMemo(() => catalogue.getCountries(), []);
   const languageOptions = useMemo(() => Array.from(new Set(catalogue.getAll().map((title) => title.originalLanguage).filter((value): value is string => Boolean(value)))).sort(), []);
-  const results = useMemo(() => sortCatalogue(filterCatalogue(catalogue.getAll(), { query, genre, kind, country, language }), sort), [genre, kind, country, language, query, sort]);
+  const decadeOptions = useMemo(() => Array.from(new Set(catalogue.getAll().map((title) => getFilmDecade(title.year)))).sort(), []);
+  const results = useMemo(() => sortCatalogue(filterCatalogue(catalogue.getAll(), { query, genre, kind, country, language, decade }), sort), [genre, kind, country, language, decade, query, sort]);
   const pagination = useMemo(() => paginateCatalogue(results, page, PAGE_SIZE), [results, page]);
-  const hasFilters = Boolean(query || genre !== "All" || kind !== "All" || country !== "All" || language !== "All" || sort !== "featured");
+  const hasFilters = Boolean(query || genre !== "All" || kind !== "All" || country !== "All" || language !== "All" || decade !== "All" || sort !== "featured");
 
   useEffect(() => {
     if (page !== pagination.page) setPage(pagination.page);
@@ -48,6 +50,7 @@ export default function ExplorePage() {
     setKind("All");
     setCountry("All");
     setLanguage("All");
+    setDecade("All");
     setSort("featured");
     setPage(1);
   };
@@ -66,11 +69,12 @@ export default function ExplorePage() {
       <Link href="/" className="inline-flex items-center gap-2 text-xs text-white/45 hover:text-white"><ArrowLeft size={14}/> Back home</Link>
       <p className="eyebrow mt-9">Worldwide discovery</p><h1 className="mt-3 font-['Manrope'] text-4xl font-semibold tracking-[-.06em] md:text-5xl">Explore stories.</h1>
       <p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Find films and series by title, genre, format or country. This is an illustrative sample collection, not a live worldwide database. Language filters use original-language metadata where available.</p>
-      <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_140px_150px_150px_150px]">
+      <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_120px_140px_140px_120px_130px]">
         <label className="flex h-12 items-center gap-3 rounded-xl border border-white/10 bg-white/[.035] px-4"><Search size={16} className="shrink-0 text-white/35"/><input value={query} onChange={e => {setQuery(e.target.value);setPage(1);}} placeholder="Search titles, countries, genres..." className="w-full bg-transparent text-sm outline-none placeholder:text-white/30"/></label>
         <select aria-label="Format" value={kind} onChange={e => {setKind(e.target.value as TitleKind | "All");setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="All">All formats</option><option value="Film">Films</option><option value="Series">Series</option></select>
         <select aria-label="Country" value={country} onChange={e => {setCountry(e.target.value);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="All">All countries</option>{countries.map(value => <option key={value} value={value}>{value}</option>)}</select>
         <select aria-label="Original language" value={language} onChange={e => {setLanguage(e.target.value);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="All">All languages</option>{languageOptions.map(value => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select>
+        <select aria-label="Release decade" value={decade} onChange={e => {setDecade(e.target.value);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="All">All decades</option>{decadeOptions.map(value => <option key={value} value={value}>{value}</option>)}</select>
         <select aria-label="Sort titles" value={sort} onChange={e => {setSort(e.target.value as CatalogueSort);setPage(1);}} className="h-12 rounded-xl border border-white/10 bg-[#121419] px-3 text-sm text-white/75"><option value="featured">Featured</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Highest rated</option></select>
       </div>
       <div className="hide-scrollbar mt-5 flex gap-2 overflow-x-auto pb-2">{genres.map(g => <button key={g} onClick={() => {setGenre(g);setPage(1);}} aria-pressed={genre === g} className={`shrink-0 rounded-full border px-4 py-2 text-xs transition ${genre === g ? "border-[#d9b779] bg-[#d9b779] text-[#17130d]" : "border-white/10 text-white/55 hover:border-white/30"}`}>{g}</button>)}</div>
