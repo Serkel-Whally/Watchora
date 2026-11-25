@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Check, Clock3, ShieldCheck, X } from "lucide-react";
 import { films } from "@/lib/catalogue";
 import ReviewReportsPanel from "@/components/review-reports-panel";
+import ReviewCommentModeration from "@/components/review-comment-moderation";
 
 type Review = {
   id: string;
@@ -119,6 +120,7 @@ export default function ReviewModeration() {
             })}
           </div>
         )}
+        <ReviewCommentModeration />
         <ReviewReportsPanel />
       </div>
     </main>
