@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("title_reviews")
-    .select("id, rating, body, created_at, user_id, profiles!title_reviews_profile_fk(display_name)")
+    .select("id, rating, body, contains_spoilers, created_at, user_id, profiles!title_reviews_profile_fk(display_name)")
     .eq("title_id", titleId)
     .eq("status", "approved")
     .order("created_at", { ascending: false })
@@ -35,12 +35,13 @@ export async function POST(request: NextRequest) {
   const titleId = Number(value.titleId);
   const rating = Number(value.rating);
   const body = typeof value.body === "string" ? value.body.trim() : "";
+  const containsSpoilers = value.containsSpoilers === true;
   if (!Number.isSafeInteger(titleId) || titleId < 1 || !getCatalogueProvider().getById(titleId)) return NextResponse.json({ error: "Choose a valid title." }, { status: 400 });
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return NextResponse.json({ error: "Choose a rating from 1 to 5." }, { status: 400 });
   if (body.length < 12 || body.length > 1000) return NextResponse.json({ error: "Reviews must be between 12 and 1,000 characters." }, { status: 400 });
 
   const { data, error } = await supabase.from("title_reviews").insert({
-    title_id: titleId, user_id: user.id, rating, body, status: "pending",
+    title_id: titleId, user_id: user.id, rating, body, contains_spoilers: containsSpoilers, status: "pending",
   }).select("id").single();
   if (error?.code === "23505") return NextResponse.json({ error: "You have already reviewed this title. Remove your existing review before submitting another." }, { status: 409 });
   if (error) return NextResponse.json({ error: "Your review could not be submitted." }, { status: 500 });
