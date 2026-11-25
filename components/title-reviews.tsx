@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { MessageSquareText, Star, Trash2, ShieldCheck, Eye } from "lucide-react";
+import { MessageSquareText, Star, Trash2, ShieldCheck, Eye, Flag } from "lucide-react";
 
 type CommunityReview = {
   id: string;
@@ -30,7 +30,7 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-  const [configured, setConfigured] = useState(true);
+  const [configured, setConfigured] = useState(true);\n  const [reportingId, setReportingId] = useState("");\n  const [reportReason, setReportReason] = useState("spam");\n  const [reportDetails, setReportDetails] = useState("");
 
   async function loadReviews() {
     setReady(false);
@@ -95,6 +95,31 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
       await loadReviews();
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Your review could not be submitted.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitReport(reviewId: string) {
+    setBusy(true);
+    setNotice("");
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reportReason, details: reportDetails }),
+      });
+      const result = await response.json();
+      if (response.status === 401) {
+        window.location.href = `/sign-in?next=${encodeURIComponent(`/title/${titleId}#reviews`)}`;
+        return;
+      }
+      if (!response.ok) throw new Error(result.error || "Your report could not be submitted.");
+      setReportingId("");
+      setReportDetails("");
+      setNotice("Thank you. Your report has been sent to the moderation team.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Your report could not be submitted.");
     } finally {
       setBusy(false);
     }
@@ -209,7 +234,8 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
                         <div className="flex items-center gap-1 text-[#d9b779]" aria-label={`${review.rating} out of 5 stars`}>{[1, 2, 3, 4, 5].map((value) => <Star key={value} size={12} fill={value <= review.rating ? "currentColor" : "none"}/>)}</div>
                       </div>
                       {review.contains_spoilers && !revealedSpoilers.has(review.id) ? <div className="mt-3 rounded-xl border border-[#d9b779]/15 bg-[#d9b779]/[.04] p-4"><p className="text-xs font-semibold text-[#d9b779]">Spoiler warning</p><p className="mt-1 text-xs text-white/45">This review discusses plot details.</p><button type="button" onClick={() => setRevealedSpoilers((current) => new Set(current).add(review.id))} className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-white/75 hover:text-white"><Eye size={13}/> Reveal review</button></div> : <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/70">{review.body}</p>}
-                      <p className="mt-3 text-[10px] text-white/30">{new Date(review.created_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p>
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><p className="text-[10px] text-white/30">{new Date(review.created_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p><button type="button" onClick={() => setReportingId((current) => current === review.id ? "" : review.id)} className="inline-flex items-center gap-1.5 text-[11px] text-white/35 transition hover:text-[#d9b779]"><Flag size={12}/> Report</button></div>
+                      {reportingId === review.id && <form onSubmit={(event) => { event.preventDefault(); void submitReport(review.id); }} className="mt-4 space-y-3 rounded-xl border border-white/10 bg-black/20 p-4"><label className="block text-xs text-white/60">Why are you reporting this review?<select value={reportReason} onChange={(event) => setReportReason(event.target.value)} className="mt-2 w-full rounded-lg border border-white/10 bg-[#15181d] px-3 py-2.5 text-xs text-white"><option value="spam">Spam or promotion</option><option value="harassment">Harassment or bullying</option><option value="hate">Hateful or discriminatory content</option><option value="spoilers">Unmarked spoilers</option><option value="misinformation">Misleading or harmful information</option><option value="other">Something else</option></select></label><label className="block text-xs text-white/60">Additional details (optional)<textarea value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} maxLength={500} rows={2} className="mt-2 w-full rounded-lg border border-white/10 bg-[#15181d] px-3 py-2.5 text-xs text-white" placeholder="Add context for the moderation team"/></label><div className="flex justify-end gap-2"><button type="button" onClick={() => setReportingId("")} className="rounded-full px-3 py-2 text-xs text-white/45">Cancel</button><button disabled={busy} type="submit" className="rounded-full bg-[#d9b779] px-4 py-2 text-xs font-semibold text-[#17130c] disabled:opacity-50">{busy ? "Sending…" : "Send report"}</button></div></form>}
                     </article>;
                   })}
                 </div>
