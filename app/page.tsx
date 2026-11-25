@@ -24,7 +24,8 @@ function FilmCard({ film, saved, onSave, onOpen }: { film: Film; saved: boolean;
 export default function Home() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState("All");
-  const [saved, setSaved] = useState<number[]>([]);\n  useEffect(() => { try { setSaved(JSON.parse(localStorage.getItem("watchora-watchlist") || "[]")); } catch { setSaved([]); } }, []);
+  const [saved, setSaved] = useState<number[]>([]);
+  useEffect(() => { try { setSaved(JSON.parse(localStorage.getItem("watchora-watchlist") || "[]")); } catch { setSaved([]); } }, []);
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);
   const [showMood, setShowMood] = useState(false);
   const [mood, setMood] = useState("Something uplifting");
