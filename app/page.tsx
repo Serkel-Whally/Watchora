@@ -15,7 +15,7 @@ const WATCHLIST_KEY = "watchora-watchlist";
 const PAGE_SIZE = 8;
 const catalogue = getCatalogueProvider();
 
-function FilmCard({ film, saved, onSave }: { film: Film; saved: boolean; onSave: (id: number) => void }) {
+function FilmCard({ film, saved, ready, onSave }: { film: Film; saved: boolean; ready: boolean; onSave: (id: number) => void }) {
   return (
     <article className="min-w-0">
       <Link href={`/title/${film.id}`} aria-label={`View ${film.title}`} className="poster group block">
@@ -101,7 +101,7 @@ export default function Home() {
 
       <section className="shell py-14 md:py-16">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p className="eyebrow">{homepageEditorial.featuredEyebrow}</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">{homepageEditorial.featuredHeading}</h2><p className="mt-3 text-sm text-white/45">{homepageEditorial.featuredDescription}</p></div><a href="#discover" className="inline-flex items-center gap-2 text-xs text-[#d9b779] hover:text-[#edce94]">Browse the full catalogue <ArrowRight size={14}/></a></div>
-        <div className="hide-scrollbar mt-8 flex w-full min-w-0 flex-nowrap snap-x snap-mandatory touch-pan-x overscroll-x-contain gap-4 overflow-x-auto overflow-y-hidden pb-4 sm:gap-5">{featuredTitles.map((film) => <div key={film.id} className="w-[min(43vw,210px)] shrink-0 snap-start sm:w-[220px]"><FilmCard film={film} saved={saved.includes(film.id)} onSave={toggleSave}/></div>)}</div>
+        <div className="hide-scrollbar mt-8 flex w-full min-w-0 flex-nowrap snap-x snap-mandatory touch-pan-x overscroll-x-contain gap-4 overflow-x-auto overflow-y-hidden pb-4 sm:gap-5">{featuredTitles.map((film) => <div key={film.id} className="w-[min(43vw,210px)] shrink-0 snap-start sm:w-[220px]"><FilmCard film={film} saved={saved.includes(film.id)} ready={ready} onSave={toggleSave}/></div>)}</div>
         {featuredTitles.length === 0 && <p className="mt-6 text-sm text-white/40">Featured titles will appear here as the catalogue is updated.</p>}
       </section>
 
