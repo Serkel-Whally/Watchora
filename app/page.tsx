@@ -41,8 +41,6 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <SiteHeader overlay />
-eader>
-
       <section className="hero-art relative flex min-h-[690px] items-end bg-[#15171b] pb-20 pt-32 md:min-h-[760px]" style={{ backgroundImage: "linear-gradient(90deg, #090a0d 0%, rgba(9,10,13,.93) 24%, rgba(9,10,13,.52) 58%, rgba(9,10,13,.2) 100%), linear-gradient(0deg, #090a0d 0%, transparent 48%), url('https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" }}>
         <div className="shell relative z-10 grid grid-cols-1 items-end gap-12 md:grid-cols-[minmax(0,1fr)_300px]">
           <div className="max-w-[690px]"><div className="mb-6 flex items-center gap-3"><span className="h-px w-8 bg-[#d9b779]"/><span className="eyebrow">A world of stories awaits</span></div><h1 className="font-['Manrope'] text-[clamp(3.1rem,7vw,6.3rem)] font-semibold leading-[.99] tracking-[-.075em]">Find your next <span className="text-[#d9b779]">favourite.</span></h1><p className="mt-7 max-w-[470px] text-[15px] leading-7 text-white/60">A universe of films and series, curated from every corner of the world. Less scrolling. Better watching.</p>
