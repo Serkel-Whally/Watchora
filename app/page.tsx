@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <SiteHeader overlay />
-      <section className="hero-art relative flex min-h-[650px] items-end bg-[#15171b] pb-16 pt-32 md:min-h-[730px] md:pb-20" style={{ backgroundImage: "linear-gradient(90deg, #090a0d 0%, rgba(9,10,13,.93) 24%, rgba(9,10,13,.52) 58%, rgba(9,10,13,.2) 100%), linear-gradient(0deg, #090a0d 0%, transparent 48%), url('https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" }}>
+      <section className="hero-art relative flex min-h-[540px] items-end bg-[#15171b] pb-14 pt-28 md:min-h-[620px] md:pb-16" style={{ backgroundImage: "linear-gradient(90deg, #090a0d 0%, rgba(9,10,13,.93) 24%, rgba(9,10,13,.52) 58%, rgba(9,10,13,.2) 100%), linear-gradient(0deg, #090a0d 0%, transparent 48%), url('https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" }}>
         <div className="shell relative z-10 grid grid-cols-1 items-end gap-12 md:grid-cols-[minmax(0,1fr)_300px]">
           <div className="max-w-[690px]">
             <div className="mb-6 flex items-center gap-3"><span className="h-px w-8 bg-[#d9b779]"/><span className="eyebrow">A world of stories awaits</span></div>
@@ -80,20 +80,6 @@ export default function Home() {
           <div className="hidden rounded-2xl border border-white/10 bg-black/25 p-5 backdrop-blur-md md:block"><p className="eyebrow">The Watchora approach</p><p className="mt-3 font-['Manrope'] text-lg font-semibold leading-snug">Great stories don’t have borders.</p><p className="mt-2 text-xs leading-5 text-white/50">Discover acclaimed cinema, hidden gems and fresh perspectives from around the globe.</p><div className="mt-5 flex items-center gap-2 text-[11px] text-[#d9b779]"><Globe2 size={13}/> One world. Endless stories.</div></div>
         </div>
         <div className="absolute bottom-7 right-8 hidden items-center gap-2 text-[10px] uppercase tracking-[.2em] text-white/35 lg:flex"><span>Scroll to discover</span><ArrowDown size={13}/></div>
-      </section>
-
-      <PersonalizedDiscovery />
-
-      <section className="shell py-14 md:py-16">
-        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p className="eyebrow">{homepageEditorial.featuredEyebrow}</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">{homepageEditorial.featuredHeading}</h2><p className="mt-3 text-sm text-white/45">{homepageEditorial.featuredDescription}</p></div><a href="#discover" className="inline-flex items-center gap-2 text-xs text-[#d9b779] hover:text-[#edce94]">Browse the full catalogue <ArrowRight size={14}/></a></div>
-        <div className="hide-scrollbar mt-8 flex w-full min-w-0 flex-nowrap snap-x snap-mandatory touch-pan-x overscroll-x-contain gap-4 overflow-x-auto overflow-y-hidden pb-4 sm:gap-5">{featuredTitles.map((film) => <div key={film.id} className="w-[min(43vw,210px)] shrink-0 snap-start sm:w-[220px]"><FilmCard film={film} saved={saved.includes(film.id)} ready={ready} onSave={toggleSave}/></div>)}</div>
-        {featuredTitles.length === 0 && <p className="mt-6 text-sm text-white/40">Featured titles will appear here as the catalogue is updated.</p>}
-      </section>
-
-      <section id="collections" className="border-y border-white/[.07] bg-[#0d0f13] py-16">
-        <div className="shell"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Curated for curious minds</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">Stories beyond borders</h2><p className="mt-3 text-sm text-white/45">A good place to start when you don’t have a title in mind.</p></div><Link href="/collections" className="inline-flex items-center gap-2 text-xs text-[#d9b779] transition hover:text-[#edce94]">View all collections <ArrowRight size={14}/></Link></div>
-          <div className="mt-9 grid gap-4 md:grid-cols-3">{homepageCollections.map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className={`group relative flex min-h-[220px] flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br ${collectionTones[collection.tone]} p-7 transition hover:-translate-y-1 hover:border-[#d9b779]/40`}><span className="eyebrow">{collection.number} / Curated collection</span><span className="flex items-end justify-between gap-3"><span><span className="block font-['Manrope'] text-2xl font-semibold">{collection.title}</span><span className="mt-2 block text-xs leading-5 text-white/45">{collection.description}</span></span><ArrowRight className="shrink-0 transition group-hover:translate-x-1"/></span></Link>)}</div>
-        </div>
       </section>
 
       <section id="discover" className="shell scroll-mt-8 py-16 md:py-20">
@@ -118,6 +104,22 @@ export default function Home() {
         {pagination.items.length ? <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">{pagination.items.map((film) => <FilmCard key={film.id} film={film} saved={saved.includes(film.id)} ready={ready} onSave={toggleSave}/>)}</div> : <div className="rounded-2xl border border-white/10 py-20 text-center"><p className="text-sm text-white/55">No titles found.</p><p className="mt-2 text-xs text-white/35">Try a different search or clear your filters.</p><button onClick={clearFilters} className="mt-5 rounded-full border border-white/15 px-4 py-2 text-xs text-white/70 hover:border-[#d9b779]">Clear filters</button></div>}
         {pagination.pageCount > 1 && <nav aria-label="Catalogue pages" className="mt-10 flex items-center justify-center gap-4"><button onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={pagination.page === 1} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-xs text-white/70 transition hover:border-white/30 disabled:opacity-30"><ChevronLeft size={14}/> Previous</button><span className="text-xs tabular-nums text-white/45">Page {pagination.page} of {pagination.pageCount}</span><button onClick={() => setPage((value) => Math.min(pagination.pageCount, value + 1))} disabled={pagination.page === pagination.pageCount} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-xs text-white/70 transition hover:border-white/30 disabled:opacity-30">Next <ChevronRight size={14}/></button></nav>}
         <p className="mt-10 text-center text-[11px] text-white/30">Sample catalogue · Titles and artwork are illustrative, not a live worldwide database. Watchora does not host films or series.</p>
+      </section>
+
+
+
+      <PersonalizedDiscovery />
+
+      <section className="shell py-14 md:py-16">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p className="eyebrow">{homepageEditorial.featuredEyebrow}</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">{homepageEditorial.featuredHeading}</h2><p className="mt-3 text-sm text-white/45">{homepageEditorial.featuredDescription}</p></div><a href="#discover" className="inline-flex items-center gap-2 text-xs text-[#d9b779] hover:text-[#edce94]">Browse the full catalogue <ArrowRight size={14}/></a></div>
+        <div className="hide-scrollbar mt-8 flex w-full min-w-0 flex-nowrap snap-x snap-mandatory touch-pan-x overscroll-x-contain gap-4 overflow-x-auto overflow-y-hidden pb-4 sm:gap-5">{featuredTitles.map((film) => <div key={film.id} className="w-[min(43vw,210px)] shrink-0 snap-start sm:w-[220px]"><FilmCard film={film} saved={saved.includes(film.id)} ready={ready} onSave={toggleSave}/></div>)}</div>
+        {featuredTitles.length === 0 && <p className="mt-6 text-sm text-white/40">Featured titles will appear here as the catalogue is updated.</p>}
+      </section>
+
+      <section id="collections" className="border-y border-white/[.07] bg-[#0d0f13] py-16">
+        <div className="shell"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Curated for curious minds</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">Stories beyond borders</h2><p className="mt-3 text-sm text-white/45">A good place to start when you don’t have a title in mind.</p></div><Link href="/collections" className="inline-flex items-center gap-2 text-xs text-[#d9b779] transition hover:text-[#edce94]">View all collections <ArrowRight size={14}/></Link></div>
+          <div className="mt-9 grid gap-4 md:grid-cols-3">{homepageCollections.map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className={`group relative flex min-h-[220px] flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br ${collectionTones[collection.tone]} p-7 transition hover:-translate-y-1 hover:border-[#d9b779]/40`}><span className="eyebrow">{collection.number} / Curated collection</span><span className="flex items-end justify-between gap-3"><span><span className="block font-['Manrope'] text-2xl font-semibold">{collection.title}</span><span className="mt-2 block text-xs leading-5 text-white/45">{collection.description}</span></span><ArrowRight className="shrink-0 transition group-hover:translate-x-1"/></span></Link>)}</div>
+        </div>
       </section>
 
       <section className="border-y border-white/[.07] bg-[#0d0f13] py-14"><div className="shell flex flex-col items-start justify-between gap-5 md:flex-row md:items-center"><div><p className="eyebrow">More than a catalogue</p><h2 className="mt-2 font-['Manrope'] text-2xl font-semibold">Discover what the community is watching.</h2><p className="mt-2 text-sm text-white/45">Explore member reviews, thoughtful recommendations and the people behind them.</p></div><Link href="/community" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-xs font-semibold text-white/75 transition hover:border-[#d9b779] hover:text-[#d9b779]">Meet the community <ArrowRight size={14}/></Link></div></section>
