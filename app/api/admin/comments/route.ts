@@ -17,7 +17,7 @@ export async function GET() {
   const auth = await adminClient();
   if (auth.response) return auth.response;
   const { data, error } = await auth.supabase!.from("review_comments")
-    .select("id, review_id, author_id, parent_id, body, contains_spoilers, created_at, profiles!review_comments_author_id_fkey(display_name), title_reviews!inner(title_id, body, rating)")
+    .select("id, review_id, author_id, parent_id, body, contains_spoilers, created_at, profiles!review_comments_author_id_fkey(display_name), title_reviews!review_comments_review_id_fkey!inner(title_id, body, rating)")
     .eq("status", "pending").order("created_at", { ascending: true }).limit(100);
   if (error) return NextResponse.json({ error: "Unable to load pending comments." }, { status: 500 });
   return NextResponse.json({ comments: data ?? [] }, { headers: { "Cache-Control": "no-store" } });
