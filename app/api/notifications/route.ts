@@ -17,7 +17,11 @@ export async function GET() {
     .select("id, actor_id, notification_type, title_id, review_id, created_at, read_at")
     .order("created_at", { ascending: false }).limit(50);
   if (error) return NextResponse.json({ error: "Unable to load notifications." }, { status: 500 });
-  return NextResponse.json({ notifications: data ?? [], unreadCount: (data ?? []).filter((item) => !item.read_at).length }, { headers: { "Cache-Control": "no-store" } });
+  const actorIds = Array.from(new Set((data ?? []).map((item) => item.actor_id).filter((id): id is string => Boolean(id))));
+  const { data: profiles } = actorIds.length ? await supabase.from("profiles").select("id, display_name").in("id", actorIds) : { data: [] };
+  const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.display_name]));
+  const notifications = (data ?? []).map((item) => ({ ...item, actor_name: item.actor_id ? names.get(item.actor_id) ?? "A Watchora member" : null }));
+  return NextResponse.json({ notifications, unreadCount: notifications.filter((item) => !item.read_at).length }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PATCH(request: NextRequest) {
