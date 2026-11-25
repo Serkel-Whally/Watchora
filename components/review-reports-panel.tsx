@@ -15,7 +15,8 @@ type Report = {
 type Audit = { id: string; report_id: string | null; review_id: string | null; moderator_id: string; action: string; previous_review_status: string | null; new_review_status: string | null; created_at: string };
 
 export default function ReviewReportsPanel() {
-  const [reports, setReports] = useState<Report[]>([]);\n  const [audit, setAudit] = useState<Audit[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [audit, setAudit] = useState<Audit[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +28,8 @@ export default function ReviewReportsPanel() {
       const response = await fetch("/api/admin/review-reports", { cache: "no-store" });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Unable to load reports.");
-      setReports(Array.isArray(result.reports) ? result.reports : []);\n      setAudit(Array.isArray(result.audit) ? result.audit : []);
+      setReports(Array.isArray(result.reports) ? result.reports : []);
+      setAudit(Array.isArray(result.audit) ? result.audit : []);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to load reports.");
     } finally {
@@ -48,7 +50,8 @@ export default function ReviewReportsPanel() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Unable to update report.");
-      setReports((current) => current.filter((report) => report.id !== id));\n      await load();
+      setReports((current) => current.filter((report) => report.id !== id));
+      await load();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to update report.");
     } finally {
