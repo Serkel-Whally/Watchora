@@ -6,6 +6,7 @@ import { ArrowDown, ArrowRight, Bookmark, Check, ChevronDown, Clapperboard, Glob
 
 import { films, genres, type Film } from "@/lib/catalogue";
 import PersonalizedDiscovery from "@/components/personalized-discovery";
+import { getHomepageCollections, getHomepageFeaturedTitles, homepageEditorial } from "@/lib/editorial";
 
 function FilmCard({ film, saved, onSave, onOpen }: { film: Film; saved: boolean; onSave: (id: number) => void; onOpen: (film: Film) => void }) {
   return (
@@ -33,6 +34,9 @@ export default function Home() {
   const [mood, setMood] = useState("Something uplifting");
   const [mobileMenu, setMobileMenu] = useState(false);
   const filtered = useMemo(() => films.filter((f) => (genre === "All" || f.genre === genre) && (f.title.toLowerCase().includes(query.toLowerCase()) || f.country.toLowerCase().includes(query.toLowerCase()))), [genre, query]);
+  const featuredTitles = useMemo(() => getHomepageFeaturedTitles(), []);
+  const homepageCollections = useMemo(() => getHomepageCollections(), []);
+  const collectionTones = { warm: "from-[#44372c] to-[#161719]", cool: "from-[#243c42] to-[#14191c]", rose: "from-[#493039] to-[#171518]", gold: "from-[#62502f] to-[#30291d]" };
   const toggleSave = (id: number) => setSaved((current) => { const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id]; localStorage.setItem("watchora-watchlist", JSON.stringify(next)); return next; });
 
   return (
@@ -59,6 +63,12 @@ export default function Home() {
 
       <PersonalizedDiscovery />
 
+      <section className="shell py-16 md:py-20">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p className="eyebrow">{homepageEditorial.featuredEyebrow}</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">{homepageEditorial.featuredHeading}</h2><p className="mt-3 text-sm text-white/45">{homepageEditorial.featuredDescription}</p></div><Link href="/explore" className="inline-flex items-center gap-2 text-xs text-[#d9b779] hover:text-[#edce94]">Browse everything <ArrowRight size={14}/></Link></div>
+        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">{featuredTitles.map((film) => <FilmCard key={film.id} film={film} saved={saved.includes(film.id)} onSave={toggleSave} onOpen={() => { window.location.href = `/title/${film.id}`; }}/>)}</div>
+        {featuredTitles.length === 0 && <p className="mt-6 text-sm text-white/40">Featured titles will appear here as the catalogue is updated.</p>}
+      </section>
+
       <section id="discover" className="shell scroll-mt-10 py-20">
         <div className="flex flex-col justify-between gap-7 md:flex-row md:items-end"><div><p className="eyebrow">Your next watch starts here</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">Explore the world of film</h2><p className="mt-3 text-sm text-white/45">A handpicked sample to get your discovery started.</p></div>
           <label className="flex h-12 w-full items-center gap-3 rounded-full border border-white/10 bg-white/[.035] px-4 md:max-w-[310px]"><Search size={16} className="text-white/35"/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search titles or countries..." className="w-full bg-transparent text-xs text-white outline-none placeholder:text-white/30"/></label>
@@ -72,9 +82,7 @@ export default function Home() {
       <section id="collections" className="border-y border-white/[.07] bg-[#0d0f13] py-20">
         <div className="shell"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="eyebrow">Curated for curious minds</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">Stories beyond borders</h2></div><Link href="/collections" className="inline-flex items-center gap-2 text-xs text-[#d9b779] transition hover:text-[#edce94]">View all collections <ArrowRight size={14}/></Link></div>
           <div className="mt-9 grid gap-4 md:grid-cols-3">
-            <button onClick={() => {setGenre("Drama");document.getElementById("discover")?.scrollIntoView({behavior:"smooth"});}} className="group relative min-h-[230px] overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(135deg,#44372c,#161719_70%)] p-7 text-left"><span className="eyebrow">01 / Intimate stories</span><span className="absolute bottom-7 left-7 right-7 flex items-end justify-between"><span className="font-['Manrope'] text-2xl font-semibold">The human<br/>experience</span><ArrowRight className="transition group-hover:translate-x-1" /></span></button>
-            <button onClick={() => {setGenre("Animation");document.getElementById("discover")?.scrollIntoView({behavior:"smooth"});}} className="group relative min-h-[230px] overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(135deg,#243c42,#14191c_70%)] p-7 text-left"><span className="eyebrow">02 / Imagination unleashed</span><span className="absolute bottom-7 left-7 right-7 flex items-end justify-between"><span className="font-['Manrope'] text-2xl font-semibold">Worlds of<br/>wonder</span><ArrowRight className="transition group-hover:translate-x-1" /></span></button>
-            <button onClick={() => {setGenre("Thriller");document.getElementById("discover")?.scrollIntoView({behavior:"smooth"});}} className="group relative min-h-[230px] overflow-hidden rounded-xl border border-white/10 bg-[linear-gradient(135deg,#493039,#171518_70%)] p-7 text-left"><span className="eyebrow">03 / Keep guessing</span><span className="absolute bottom-7 left-7 right-7 flex items-end justify-between"><span className="font-['Manrope'] text-2xl font-semibold">Edge of<br/>your seat</span><ArrowRight className="transition group-hover:translate-x-1" /></span></button>
+            {homepageCollections.map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className={`group relative flex min-h-[230px] flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br ${collectionTones[collection.tone]} p-7 transition hover:-translate-y-1 hover:border-[#d9b779]/40`}><span className="eyebrow">{collection.number} / Curated collection</span><span className="flex items-end justify-between gap-3"><span><span className="block font-['Manrope'] text-2xl font-semibold">{collection.title}</span><span className="mt-2 block text-xs leading-5 text-white/45">{collection.description}</span></span><ArrowRight className="shrink-0 transition group-hover:translate-x-1"/></span></Link>)}
           </div>
         </div>
       </section>
