@@ -84,7 +84,7 @@ export default function ReviewComments({ reviewId }: { reviewId: string }) {
     </article>;
   }
 
-  return <div className="mt-4 border-t border-white/[.07] pt-4">
+  return <div id={"discussion-" + reviewId} className="mt-4 border-t border-white/[.07] pt-4">
     <div className="flex items-center gap-2 text-xs font-semibold text-white/65"><MessageCircle size={13}/> Discussion <span className="font-normal text-white/30">{comments.filter((comment) => comment.status === "approved").length}</span></div>
     {loading ? <p className="mt-3 text-[11px] text-white/35">Loading discussion…</p> : roots.length ? <div className="mt-3 space-y-2">{roots.map((root) => <div key={root.id} className="space-y-2">{renderComment(root)}{replies.filter((reply) => reply.parent_id === root.id).map((reply) => renderComment(reply, true))}</div>)}</div> : <p className="mt-3 text-[11px] text-white/35">No comments yet. Start a thoughtful discussion.</p>}
     <form onSubmit={submit} className="mt-4 rounded-xl border border-white/[.08] bg-black/20 p-3.5">
