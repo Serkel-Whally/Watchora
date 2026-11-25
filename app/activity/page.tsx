@@ -46,6 +46,7 @@ export default async function ActivityPage() {
       <p className="eyebrow mt-8">A living film conversation</p>
       <h1 className="mt-3 font-['Manrope'] text-4xl font-semibold tracking-[-.06em] md:text-6xl">Community activity.</h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-white/45">Recent approved reviews from Watchora members. Helpful votes recognise thoughtful contributions; spoiler-marked review text stays hidden here.</p>
+      <Link href="/following" className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-[#d9b779] hover:text-[#edce94]">See activity from members you follow <ArrowRight size={13}/></Link>
       {!connected ? <div className="mt-10 rounded-2xl border border-[#d9b779]/20 bg-[#d9b779]/[.04] p-7 text-sm leading-6 text-white/55">The activity feed will appear once the Supabase review service is configured and the community activity migration has been applied.</div>
       : items.length ? <div className="mt-10 space-y-4">{items.map((item) => <article key={item.review_id} className="rounded-2xl border border-white/10 bg-white/[.025] p-5 md:p-7">
         <div className="flex flex-wrap items-center justify-between gap-3">
