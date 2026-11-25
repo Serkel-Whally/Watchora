@@ -128,7 +128,7 @@ export default function CatalogueImportReview() {
             <h2 className="font-['Manrope'] text-lg font-semibold">4. Approve and export</h2>
             <label className="mt-4 flex cursor-pointer items-start gap-3 text-xs leading-5 text-white/55"><input type="checkbox" checked={reviewConfirmed} onChange={(event) => setReviewConfirmed(event.target.checked)} className="mt-1 accent-[#d9b779]"/><span>I have reviewed the selected titles and confirm this export is ready for a separate, reviewed catalogue update.</span></label>
             <button onClick={exportApproved} disabled={!reviewConfirmed || selectedTitles.length === 0} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#d9b779] px-5 py-3 text-xs font-semibold text-[#17130d] transition hover:bg-[#e8c990] disabled:cursor-not-allowed disabled:opacity-40"><Download size={14}/> Export {selectedTitles.length} approved {selectedTitles.length === 1 ? "title" : "titles"}</button>
-            <p className="mt-3 text-[11px] leading-5 text-white/30">This downloads a versioned JSON file. It does not publish, merge or replace Watchora's live catalogue. Publishing remains a separate Git-reviewed operation.</p>
+            <p className="mt-3 text-[11px] leading-5 text-white/30">This downloads a versioned JSON file. It does not publish, merge or replace Watchora&apos;s live catalogue. Publishing remains a separate Git-reviewed operation.</p>
           </section>
         </>}
         <p className="mt-10 text-center text-[10px] leading-5 text-white/25">Unlisted utility, not an authenticated admin console · Files are processed in your browser · Import only metadata and artwork you are licensed to use.</p>
