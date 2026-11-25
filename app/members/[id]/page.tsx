@@ -17,6 +17,7 @@ export default async function MemberPage({ params }: { params: Promise<{ id: str
     supabase.from("profiles").select("id, display_name, bio, created_at").eq("id", id).maybeSingle(),
     supabase.from("title_reviews").select("id, title_id, rating, body, contains_spoilers, created_at").eq("user_id", id).eq("status", "approved").order("created_at", { ascending: false }).limit(50),
     supabase.rpc("get_member_reputation", { p_member_id: id }),
+    supabase.rpc("get_member_follow_stats", { p_member_id: id }),
   ]);
   if (!profile) notFound();
   const catalogue = getCatalogueProvider();
