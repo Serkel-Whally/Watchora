@@ -104,7 +104,7 @@ export default function NotificationsPage() {
     {error && <p role="alert" className="mt-6 text-sm text-red-300">{error}</p>}
     {loading ? <p className="py-20 text-sm text-white/40">Loading notifications…</p>
     : !configured ? <div className="mt-9 rounded-2xl border border-white/10 p-8 text-sm leading-6 text-white/50">Notifications will be available after the Watchora community service is configured.</div>
-    : !signedIn ? <div className="mt-9 rounded-2xl border border-white/10 bg-white/[.025] p-8"><Bell size={22} className="text-[#d9b779]"/><p className="mt-4 text-sm text-white/60">Sign in to see review decisions and helpful votes.</p><Link href="/sign-in?next=%2Fnotifications" className="mt-5 inline-flex rounded-full bg-[#d9b779] px-5 py-3 text-xs font-bold text-[#17130d]">Sign in</Link></div>
+    : !signedIn ? <div className="mt-9 rounded-2xl border border-white/10 bg-white/[.025] p-8"><Bell size={22} className="text-[#d9b779]"/><p className="mt-4 text-sm text-white/60">Sign in to see review decisions, helpful votes and discussion replies.</p><Link href="/sign-in?next=%2Fnotifications" className="mt-5 inline-flex rounded-full bg-[#d9b779] px-5 py-3 text-xs font-bold text-[#17130d]">Sign in</Link></div>
     : items.length ? <div className="mt-9 space-y-3">{items.map((item) => {
       const copy = notificationCopy(item);
       const Icon = copy.icon;
@@ -115,7 +115,7 @@ export default function NotificationsPage() {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-2"><h2 className="text-sm font-semibold text-white/85">{copy.title}</h2>{!item.read_at && <span className="mt-1 size-2 rounded-full bg-[#d9b779]" aria-label="Unread"/>}</div>
             <p className="mt-1 text-sm leading-6 text-white/50">{copy.body}</p>
-            {title && <Link href={`/title/${title.id}#reviews`} onClick={() => { if (!item.read_at) void markRead([item.id]); }} className="mt-3 inline-flex text-xs font-medium text-[#d9b779] hover:text-[#edce94]">{title.title} · {title.year}</Link>}
+            {title && <Link href={item.comment_id && item.review_id ? `/title/${title.id}#discussion-${item.review_id}` : `/title/${title.id}#reviews`} onClick={() => { if (!item.read_at) void markRead([item.id]); }} className="mt-3 inline-flex text-xs font-medium text-[#d9b779] hover:text-[#edce94]">{title.title} · {title.year}</Link>}
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><span className="inline-flex items-center gap-1.5 text-[10px] text-white/30"><Clock3 size={11}/>{dateLabel(item.created_at)}</span>{!item.read_at && <button onClick={() => void markRead([item.id])} disabled={updating} className="text-[11px] text-white/45 hover:text-white disabled:opacity-50">Mark as read</button>}</div>
           </div>
         </div>
