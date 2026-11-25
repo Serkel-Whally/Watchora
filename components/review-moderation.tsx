@@ -11,6 +11,7 @@ type Review = {
   user_id: string;
   rating: number;
   body: string;
+  contains_spoilers: boolean;
   status: string;
   created_at: string;
   profiles?: { display_name?: string } | { display_name?: string }[] | null;
@@ -107,7 +108,8 @@ export default function ReviewModeration() {
                   </div>
                   <div className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/55">{review.rating}/5 stars</div>
                 </div>
-                <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-white/75">{review.body}</p>
+                {review.contains_spoilers && <p className="mt-4 inline-flex rounded-full border border-[#d9b779]/20 bg-[#d9b779]/[.06] px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#d9b779]">Contains spoilers</p>}
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/75">{review.body}</p>
                 <div className="mt-5 flex flex-wrap justify-end gap-2 border-t border-white/10 pt-4">
                   <button disabled={busyId === review.id} onClick={() => void moderate(review.id, "rejected")} className="inline-flex items-center gap-2 rounded-full border border-red-300/20 px-4 py-2.5 text-xs text-red-200 transition hover:bg-red-300/10 disabled:opacity-40"><X size={14}/> Reject</button>
                   <button disabled={busyId === review.id} onClick={() => void moderate(review.id, "approved")} className="inline-flex items-center gap-2 rounded-full bg-[#d9b779] px-4 py-2.5 text-xs font-semibold text-[#17130c] transition hover:bg-[#edce94] disabled:opacity-40"><Check size={14}/> Approve</button>
