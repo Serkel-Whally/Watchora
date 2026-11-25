@@ -11,7 +11,4 @@ export const films: Film[] = [
   { id: 8, title: "RRR", year: 2022, kind: "Film", genre: "Action", country: "India", rating: "7.8", image: "https://image.tmdb.org/t/p/w500/nEufeZlyAOLqO2brrs0yeF1lgXO.jpg", description: "Two legendary revolutionaries forge an unlikely friendship in a larger-than-life adventure." },
 ];
 
-const genres = ["All", "Drama", "Comedy", "Thriller", "Animation", "Action"];
-
-
 export const genres = ["All", "Drama", "Comedy", "Thriller", "Animation", "Action"];
