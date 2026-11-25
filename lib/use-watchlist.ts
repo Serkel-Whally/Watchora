@@ -17,6 +17,7 @@ export function useWatchlist() {
   const [saved, setSaved] = useState<number[]>([]);
   const [ready, setReady] = useState(false);
   const [synced, setSynced] = useState(false);
+  const [syncAvailable, setSyncAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,7 +32,10 @@ export function useWatchlist() {
 
       try {
         const response = await fetch("/api/watchlist", { cache: "no-store" });
+        if (response.status === 503) setSyncAvailable(false);
+        else if (response.status === 401) setSyncAvailable(true);
         if (response.ok) {
+          setSyncAvailable(true);
           const data = await response.json();
           const merged = validIds([...validIds(data.titleIds), ...localIds]);
           const mergeResponse = await fetch("/api/watchlist", {
@@ -96,5 +100,5 @@ export function useWatchlist() {
     }
   }, [saved, synced]);
 
-  return { saved, ready, synced, toggle, remove };
+  return { saved, ready, synced, syncAvailable, toggle, remove };
 }
