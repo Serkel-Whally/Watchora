@@ -85,10 +85,7 @@ export default function CatalogueImportReview() {
           <section className="rounded-2xl border border-white/10 bg-white/[.025] p-5 md:p-6">
             <div className="flex items-center justify-between gap-3"><h2 className="font-['Manrope'] text-lg font-semibold">1. Add catalogue data</h2><FileJson size={18} className="text-white/35"/></div>
             <p className="mt-2 text-xs leading-5 text-white/40">Paste a version 1 JSON envelope or a JSON array. Maximum file size: 2 MB.</p>
-            <textarea value={source} onChange={(event) => {setSource(event.target.value);setResult(null);setSelectedIds([]);setReviewConfirmed(false);}} placeholder={'{
-  "version": 1,
-  "titles": []
-}'} spellCheck={false} className="mt-4 min-h-[260px] w-full resize-y rounded-xl border border-white/10 bg-[#090a0d] p-4 font-mono text-xs leading-6 text-white/75 outline-none transition placeholder:text-white/20 focus:border-[#d9b779]/60"/>
+            <textarea value={source} onChange={(event) => {setSource(event.target.value);setResult(null);setSelectedIds([]);setReviewConfirmed(false);}} placeholder="Paste a version 1 JSON envelope or array" spellCheck={false} className="mt-4 min-h-[260px] w-full resize-y rounded-xl border border-white/10 bg-[#090a0d] p-4 font-mono text-xs leading-6 text-white/75 outline-none transition placeholder:text-white/20 focus:border-[#d9b779]/60"/>
             <div className="mt-4 flex flex-wrap gap-3">
               <button onClick={() => processImport(source)} disabled={!source.trim()} className="rounded-full bg-[#d9b779] px-5 py-2.5 text-xs font-semibold text-[#17130d] transition hover:bg-[#e8c990] disabled:cursor-not-allowed disabled:opacity-40">Validate JSON</button>
               <button onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-xs text-white/65 transition hover:border-white/30 hover:text-white"><FileUp size={14}/> Choose file</button>
