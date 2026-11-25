@@ -35,11 +35,11 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
         <nav className="hidden items-center gap-7 text-xs text-white/60 md:flex" aria-label="Main navigation">
           {links.map((link) => <Link key={link.href} href={link.href} className="transition hover:text-white">{link.label}</Link>)}
         </nav>
-        <button className="relative z-[60] rounded-full border border-white/10 p-2.5 text-white transition hover:border-white/25 md:hidden" onClick={() => setOpen((value) => !value)} aria-label={open ? "Close navigation menu" : "Open navigation menu"} aria-expanded={open} aria-controls="watchora-site-mobile-menu">
+        <button className="relative z-10 rounded-full border border-white/10 p-2.5 text-white transition hover:border-white/25 md:hidden" onClick={() => setOpen((value) => !value)} aria-label={open ? "Close navigation menu" : "Open navigation menu"} aria-expanded={open} aria-controls="watchora-site-mobile-menu">
           {open ? <X size={19}/> : <Menu size={19}/>}
         </button>
       </div>
-      <div className={`fixed inset-0 z-50 md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
+      <div className={`fixed inset-0 z-[70] md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
         <button tabIndex={open ? 0 : -1} onClick={() => setOpen(false)} aria-label="Close navigation menu" className={`absolute inset-0 bg-black/75 transition-opacity duration-300 motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`}/>
         <aside id="watchora-site-mobile-menu" aria-label="Mobile navigation" className={`absolute right-0 top-0 flex h-full w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0b0c0f] px-7 pb-10 pt-7 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none ${open ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex items-center justify-between border-b border-white/10 pb-7">
