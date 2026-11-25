@@ -34,11 +34,11 @@ declare
   v_review public.title_reviews%rowtype;
   v_audit_action text;
 begin
-  if auth.uid() is null or (auth.jwt() -> 'app_metadata' ->> 'role') <> 'admin' then
+  if auth.uid() is null or (auth.jwt() -> 'app_metadata' ->> 'role') is distinct from 'admin' then
     raise exception 'Admin access required' using errcode = '42501';
   end if;
 
-  if p_action not in ('resolve','dismiss','reject_review') then
+  if p_action is null or p_action not in ('resolve','dismiss','reject_review') then
     raise exception 'Invalid moderation action' using errcode = '22023';
   end if;
 
