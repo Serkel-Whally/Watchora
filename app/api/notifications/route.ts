@@ -14,7 +14,7 @@ export async function GET() {
   const { supabase, user } = await memberClient();
   if (!user) return NextResponse.json({ error: "Sign in to view notifications." }, { status: 401 });
   const { data, error } = await supabase.from("member_notifications")
-    .select("id, actor_id, notification_type, title_id, review_id, created_at, read_at")
+    .select("id, actor_id, notification_type, title_id, review_id, comment_id, created_at, read_at")
     .order("created_at", { ascending: false }).limit(50);
   if (error) return NextResponse.json({ error: "Unable to load notifications." }, { status: 500 });
   const actorIds = Array.from(new Set((data ?? []).map((item) => item.actor_id).filter((id): id is string => Boolean(id))));
