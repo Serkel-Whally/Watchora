@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SiteHeader from "@/components/site-header";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getCollectionTitles, getCuratedCollection } from "@/lib/curated-collections";
@@ -17,7 +18,7 @@ export default async function CollectionDetailPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
-      <header className="border-b border-white/[.08]"><div className="shell flex h-[76px] items-center justify-between"><Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link><nav className="flex items-center gap-5 text-xs text-white/60"><Link href="/collections" className="hover:text-white">All collections</Link><Link href="/explore" className="hover:text-white">Discover</Link></nav></div></header>
+      <SiteHeader />
       <section className="shell py-14 md:py-20">
         <Link href="/collections" className="inline-flex items-center gap-2 text-xs text-white/45 hover:text-white"><ArrowLeft size={14}/> All collections</Link>
         <p className="eyebrow mt-10">{collection.number} / Curated collection</p>
