@@ -18,7 +18,8 @@ create index if not exists member_notifications_unread_idx
 
 alter table public.member_notifications enable row level security;
 revoke all on public.member_notifications from anon, authenticated;
-grant select, update on public.member_notifications to authenticated;
+grant select on public.member_notifications to authenticated;
+grant update (read_at) on public.member_notifications to authenticated;
 
 drop policy if exists "Members read their own notifications" on public.member_notifications;
 create policy "Members read their own notifications"
