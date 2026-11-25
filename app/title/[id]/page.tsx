@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SiteHeader from "@/components/site-header";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3, Globe2, Languages, Star } from "lucide-react";
 import WatchlistToggle from "@/components/watchlist-toggle";
@@ -28,12 +29,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   return (
     <main className="min-h-screen">
       <TitleViewTracker id={film.id} />
-      <header className="border-b border-white/[.08]">
-        <div className="shell flex h-[76px] items-center justify-between">
-          <Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link>
-          <nav className="flex items-center gap-5 text-xs text-white/55"><Link href="/explore" className="hover:text-white">Discover</Link><Link href="/watchlist" className="hover:text-white">Watchlist</Link></nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       <section className="shell py-10 md:py-14">
         <Link href="/explore" className="inline-flex items-center gap-2 text-xs text-white/45 hover:text-white"><ArrowLeft size={14}/> Back to explore</Link>
