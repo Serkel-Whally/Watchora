@@ -22,7 +22,13 @@ export async function GET() {
     .order("created_at", { ascending: true })
     .limit(100);
   if (error) return NextResponse.json({ error: "Unable to load review reports." }, { status: 500 });
-  return NextResponse.json({ reports: data ?? [] }, { headers: { "Cache-Control": "no-store" } });
+  const { data: audit, error: auditError } = await auth.supabase!
+    .from("review_moderation_audit")
+    .select("id, report_id, review_id, moderator_id, action, previous_review_status, new_review_status, created_at")
+    .order("created_at", { ascending: false })
+    .limit(30);
+  if (auditError) return NextResponse.json({ error: "Unable to load moderation history. Apply the latest database migration." }, { status: 500 });
+  return NextResponse.json({ reports: data ?? [], audit: audit ?? [] }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function PATCH(request: NextRequest) {
