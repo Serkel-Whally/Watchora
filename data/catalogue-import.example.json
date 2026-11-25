@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "titles": [
+    {
+      "id": 9001,
+      "title": "Example title",
+      "year": 2024,
+      "kind": "Film",
+      "genre": "Drama",
+      "country": "Ghana",
+      "rating": "7.4",
+      "image": "https://images.example.com/example-title-poster.jpg",
+      "description": "An illustrative record showing the canonical Watchora import format.",
+      "originalLanguage": "en",
+      "runtimeMinutes": 104,
+      "ratingSource": "Illustrative sample"
+    }
+  ]
+}
