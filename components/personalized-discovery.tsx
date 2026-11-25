@@ -51,9 +51,13 @@ export default function PersonalizedDiscovery() {
     setReady(true);
   }, []);
 
-  if (!ready || (!recent.length && !recommendations.length)) return null;
+  if (!ready) return null;
+
+  const fallbackPicks = films.slice(0, 6).map((film) => film.id);
+  const hasPersonalSignals = recent.length > 0 || recommendations.length > 0;
+  const visibleRecommendations = recommendations.length ? recommendations : fallbackPicks.filter((id) => !recent.includes(id)).slice(0, 6);
 
   const renderRow = (title: string, ids: number[], eyebrow: string) => ids.length ? <section className="shell py-10"><div className="flex items-end justify-between"><div><p className="eyebrow">{eyebrow}</p><h2 className="mt-2 font-['Manrope'] text-2xl font-semibold tracking-[-.04em]">{title}</h2></div><Link href="/preferences" className="text-xs text-[#d9b779] hover:text-[#edce94]">Tune preferences</Link></div><div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">{ids.map((id) => { const film = films.find((item) => item.id === id); return film ? <Link key={id} href={`/title/${id}`} className="group min-w-0"><div className="poster"><img src={film.image} alt={`${film.title} poster`} loading="lazy"/><span className="absolute bottom-3 left-3 right-3 text-xs font-semibold text-white">{film.title}</span></div><p className="mt-2 text-[11px] text-white/40">{film.year} · {film.genre}</p></Link> : null; })}</div></section> : null;
 
-  return <>{renderRow("Recently viewed", recent, "Picked up where you left off")}{renderRow("Picked for your taste", recommendations, "A little more like what you enjoy")}</>;
+  return <div className="space-y-2">{recent.length > 0 && renderRow("Recently viewed", recent, "Picked up where you left off")}{renderRow(hasPersonalSignals ? "Picked for your taste" : "A few stories to get you started", visibleRecommendations, hasPersonalSignals ? "A little more like what you enjoy" : "A hand-picked starting point from the sample catalogue")}</div>;
 }
