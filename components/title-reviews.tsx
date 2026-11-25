@@ -6,6 +6,7 @@ import { MessageSquareText, Star, Trash2, ShieldCheck, Eye, Flag } from "lucide-
 
 type CommunityReview = {
   id: string;
+  user_id: string;
   rating: number;
   body: string;
   contains_spoilers: boolean;
@@ -233,7 +234,7 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
                     const profile = Array.isArray(review.profiles) ? review.profiles[0] : review.profiles;
                     return <article key={review.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-5">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-semibold text-white/70">{profile?.display_name || "Watchora member"}</p>
+                        <Link href={`/members/${review.user_id}`} className="text-xs font-semibold text-white/70 transition hover:text-[#d9b779]">{profile?.display_name || "Watchora member"}</Link>
                         <div className="flex items-center gap-1 text-[#d9b779]" aria-label={`${review.rating} out of 5 stars`}>{[1, 2, 3, 4, 5].map((value) => <Star key={value} size={12} fill={value <= review.rating ? "currentColor" : "none"}/>)}</div>
                       </div>
                       {review.contains_spoilers && !revealedSpoilers.has(review.id) ? <div className="mt-3 rounded-xl border border-[#d9b779]/15 bg-[#d9b779]/[.04] p-4"><p className="text-xs font-semibold text-[#d9b779]">Spoiler warning</p><p className="mt-1 text-xs text-white/45">This review discusses plot details.</p><button type="button" onClick={() => setRevealedSpoilers((current) => new Set(current).add(review.id))} className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-white/75 hover:text-white"><Eye size={13}/> Reveal review</button></div> : <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/70">{review.body}</p>}
