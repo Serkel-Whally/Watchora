@@ -35,6 +35,10 @@ export async function POST(request: NextRequest) {
   if (titleIds.some((id) => !Number.isSafeInteger(id) || id < 1 || !getCatalogueProvider().getById(id))) {
     return NextResponse.json({ error: "One or more saved titles are invalid." }, { status: 400 });
   }
+  const { data: existingRows, error: existingError } = await supabase.from("user_watchlist").select("title_id").limit(501);
+  if (existingError) return NextResponse.json({ error: "Unable to check your saved titles." }, { status: 500 });
+  const combinedIds = new Set([...(existingRows ?? []).map((row) => Number(row.title_id)), ...titleIds]);
+  if (combinedIds.size > 500) return NextResponse.json({ error: "A watchlist can contain up to 500 titles." }, { status: 400 });
   if (titleIds.length) {
     const rows = titleIds.map((title_id) => ({ user_id: user.id, title_id }));
     const { error } = await supabase.from("user_watchlist").upsert(rows, { onConflict: "user_id,title_id", ignoreDuplicates: true });
