@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import SiteHeader from "@/components/site-header";
 import { ArrowLeft, Bookmark, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { genres, type TitleKind } from "@/lib/catalogue";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
@@ -64,7 +65,7 @@ export default function ExplorePage() {
   };
 
   return <main className="min-h-screen">
-    <header className="border-b border-white/[.08]"><div className="shell flex h-[76px] items-center justify-between"><Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link><nav className="flex items-center gap-5 text-xs text-white/60"><Link href="/" className="hover:text-white">Home</Link><Link href="/watchlist" className="hover:text-white">Watchlist{ready && saved.length > 0 ? ` (${saved.length})` : ""}</Link></nav></div></header>
+    <SiteHeader />
     <section className="shell py-12 md:py-16">
       <Link href="/" className="inline-flex items-center gap-2 text-xs text-white/45 hover:text-white"><ArrowLeft size={14}/> Back home</Link>
       <p className="eyebrow mt-9">Worldwide discovery</p><h1 className="mt-3 font-['Manrope'] text-4xl font-semibold tracking-[-.06em] md:text-5xl">Explore stories.</h1>
