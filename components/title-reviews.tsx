@@ -2,12 +2,13 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { MessageSquareText, Star, Trash2, ShieldCheck } from "lucide-react";
+import { MessageSquareText, Star, Trash2, ShieldCheck, Eye } from "lucide-react";
 
 type CommunityReview = {
   id: string;
   rating: number;
   body: string;
+  contains_spoilers: boolean;
   created_at: string;
   profiles?: { display_name?: string } | { display_name?: string }[] | null;
 };
@@ -24,6 +25,8 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
   const [ownReview, setOwnReview] = useState<OwnReview | null>(null);
   const [rating, setRating] = useState(0);
   const [body, setBody] = useState("");
+  const [containsSpoilers, setContainsSpoilers] = useState(false);
+  const [revealedSpoilers, setRevealedSpoilers] = useState<Set<string>>(() => new Set());
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -77,7 +80,7 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
       const response = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titleId, rating, body: trimmed }),
+        body: JSON.stringify({ titleId, rating, body: trimmed, containsSpoilers }),
       });
       const result = await response.json();
       if (response.status === 401) {
@@ -87,6 +90,7 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
       if (!response.ok) throw new Error(result.error || "Your review could not be submitted.");
       setBody("");
       setRating(0);
+      setContainsSpoilers(false);
       setNotice("Your review was submitted and is awaiting moderation before it appears publicly.");
       await loadReviews();
     } catch (error) {
@@ -174,6 +178,7 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
                 <label htmlFor={`review-body-${titleId}`} className="mt-6 block text-xs font-medium text-white/65">Your review</label>
                 <textarea id={`review-body-${titleId}`} value={body} onChange={(event) => setBody(event.target.value)} maxLength={1000} rows={5} placeholder="Tell us what you thought about the story, performances, or filmmaking..." className="mt-3 w-full resize-y rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/25 focus:border-[#d9b779]/50" />
                 <div className="mt-2 flex justify-between text-[11px] text-white/30"><span>Keep it kind and spoiler-aware.</span><span>{body.length}/1000</span></div>
+                <label className="mt-4 flex cursor-pointer items-start gap-3 text-xs leading-5 text-white/55"><input type="checkbox" checked={containsSpoilers} onChange={(event) => setContainsSpoilers(event.target.checked)} className="mt-0.5 accent-[#d9b779]"/> This review contains plot spoilers</label>
                 <div className="mt-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-[11px] text-white/35">One review per title per account.</p>
                   <button type="submit" disabled={busy || !ready} className="rounded-full bg-[#d9b779] px-5 py-3 text-xs font-semibold text-[#17130c] transition hover:bg-[#edce94] disabled:opacity-50">{busy ? "Submitting…" : "Submit review"}</button>
@@ -203,7 +208,7 @@ export default function TitleReviews({ titleId, title }: { titleId: number; titl
                         <p className="text-xs font-semibold text-white/70">{profile?.display_name || "Watchora member"}</p>
                         <div className="flex items-center gap-1 text-[#d9b779]" aria-label={`${review.rating} out of 5 stars`}>{[1, 2, 3, 4, 5].map((value) => <Star key={value} size={12} fill={value <= review.rating ? "currentColor" : "none"}/>)}</div>
                       </div>
-                      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/70">{review.body}</p>
+                      {review.contains_spoilers && !revealedSpoilers.has(review.id) ? <div className="mt-3 rounded-xl border border-[#d9b779]/15 bg-[#d9b779]/[.04] p-4"><p className="text-xs font-semibold text-[#d9b779]">Spoiler warning</p><p className="mt-1 text-xs text-white/45">This review discusses plot details.</p><button type="button" onClick={() => setRevealedSpoilers((current) => new Set(current).add(review.id))} className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-white/75 hover:text-white"><Eye size={13}/> Reveal review</button></div> : <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-white/70">{review.body}</p>}
                       <p className="mt-3 text-[10px] text-white/30">{new Date(review.created_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p>
                     </article>;
                   })}
