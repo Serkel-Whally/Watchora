@@ -32,18 +32,17 @@ export async function PATCH(request: NextRequest) {
   let payload: unknown;
   try { payload = await request.json(); } catch { return NextResponse.json({ error: "Invalid request body." }, { status: 400 }); }
   if (!payload || typeof payload !== "object") return NextResponse.json({ error: "Invalid report action." }, { status: 400 });
-  const { id, status } = payload as Record<string, unknown>;
-  if (typeof id !== "string" || !/^[0-9a-f-]{36}$/i.test(id) || (status !== "resolved" && status !== "dismissed")) {
-    return NextResponse.json({ error: "Choose a valid report and resolution." }, { status: 400 });
+  const { id, action } = payload as Record<string, unknown>;
+  if (typeof id !== "string" || !/^[0-9a-f-]{36}$/i.test(id) || !["resolve", "dismiss", "reject_review"].includes(String(action))) {
+    return NextResponse.json({ error: "Choose a valid report and moderation action." }, { status: 400 });
   }
-  const { data, error } = await auth.supabase!
-    .from("review_reports")
-    .update({ status, resolved_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("status", "open")
-    .select("id")
-    .maybeSingle();
-  if (error) return NextResponse.json({ error: "Unable to update this report." }, { status: 500 });
-  if (!data) return NextResponse.json({ error: "This report is no longer open." }, { status: 409 });
-  return NextResponse.json({ updated: true, status });
+  const { data, error } = await auth.supabase!.rpc("admin_process_review_report", {
+    p_report_id: id,
+    p_action: action,
+  });
+  if (error) {
+    const status = error.code === "42501" ? 403 : error.code === "P0002" ? 409 : 400;
+    return NextResponse.json({ error: error.message || "Unable to process this report." }, { status });
+  }
+  return NextResponse.json(data);
 }
