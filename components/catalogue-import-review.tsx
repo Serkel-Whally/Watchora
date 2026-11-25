@@ -6,8 +6,6 @@ import { AlertCircle, ArrowLeft, Check, CheckCircle2, Download, FileJson, FileUp
 import { importCatalogueJson, type CatalogueImportResult } from "@/lib/catalogue-import";
 import type { Film } from "@/lib/catalogue";
 
-const emptyResult: CatalogueImportResult = { titles: [], rejected: [], issues: [] };
-
 export default function CatalogueImportReview() {
   const [source, setSource] = useState("");
   const [result, setResult] = useState<CatalogueImportResult | null>(null);
