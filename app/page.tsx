@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowRight, Bookmark, Check, Globe2, Search, Sparkles, X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
-import { films, genres, type Film, type TitleKind } from "@/lib/catalogue";
+import { genres, type Film, type TitleKind } from "@/lib/catalogue";
 import PersonalizedDiscovery from "@/components/personalized-discovery";
 import SiteHeader from "@/components/site-header";
 import { getHomepageCollections, getHomepageFeaturedTitles, homepageEditorial } from "@/lib/editorial";
@@ -25,7 +25,7 @@ function FilmCard({ film, saved, onSave }: { film: Film; saved: boolean; onSave:
       </Link>
       <div className="mt-3 flex items-center justify-between gap-2">
         <div className="min-w-0"><p className="truncate text-xs text-white/80">{film.year} <span className="text-white/30">·</span> {film.genre}</p><p className="mt-1 text-[11px] text-white/40">{film.country}</p></div>
-        <button onClick={() => onSave(film.id)} aria-label={saved ? "Remove from watchlist" : "Add to watchlist"} aria-pressed={saved} className={`rounded-full border p-2 transition ${saved ? "border-[#d9b779] text-[#d9b779]" : "border-white/10 text-white/50 hover:border-white/40 hover:text-white"}`}>{saved ? <Check size={14} /> : <Bookmark size={14} />}</button>
+        <button onClick={() => onSave(film.id)} aria-label={saved ? "Remove from watchlist" : "Add to watchlist"} aria-pressed={saved} disabled={!ready} className={`rounded-full border p-2 transition ${saved ? "border-[#d9b779] text-[#d9b779]" : "border-white/10 text-white/50 hover:border-white/40 hover:text-white"}`}>{saved ? <Check size={14} /> : <Bookmark size={14} />}</button>
       </div>
     </article>
   );
