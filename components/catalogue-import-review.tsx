@@ -78,7 +78,7 @@ export default function CatalogueImportReview() {
         <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">Validate a canonical JSON catalogue file, inspect accepted and rejected records, then approve only the titles you want included in an export.</p>
 
         <div className="mt-8 rounded-2xl border border-[#d9b779]/20 bg-[#d9b779]/[.045] p-4 md:p-5">
-          <div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 shrink-0 text-[#d9b779]" size={19}/><div><p className="text-sm font-semibold text-white/85">Private, local-only review</p><p className="mt-1 text-xs leading-5 text-white/45">Your file is parsed in this browser. It is not uploaded to Watchora or saved to the live catalogue. Approval creates a reviewed JSON export only; publishing still requires a reviewed Git change.</p></div></div>
+          <div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 shrink-0 text-[#d9b779]" size={19}/><div><p className="text-sm font-semibold text-white/85">Browser-only review</p><p className="mt-1 text-xs leading-5 text-white/45">Your file is parsed in this browser. It is not uploaded to Watchora or saved to the live catalogue. Approval creates a reviewed JSON export only; publishing still requires a reviewed Git change.</p></div></div>
         </div>
 
         <div className="mt-8 grid gap-5 lg:grid-cols-[1.05fr_.95fr]">
@@ -134,7 +134,7 @@ export default function CatalogueImportReview() {
             <p className="mt-3 text-[11px] leading-5 text-white/30">This downloads a versioned JSON file. It does not publish, merge or replace Watchora's live catalogue. Publishing remains a separate Git-reviewed operation.</p>
           </section>
         </>}
-        <p className="mt-10 text-center text-[10px] leading-5 text-white/25">Internal utility · Files are processed in your browser · Do not import metadata or artwork unless you have the rights to use it.</p>
+        <p className="mt-10 text-center text-[10px] leading-5 text-white/25">Unlisted utility, not an authenticated admin console · Files are processed in your browser · Import only metadata and artwork you are licensed to use.</p>
       </section>
     </main>
   );
