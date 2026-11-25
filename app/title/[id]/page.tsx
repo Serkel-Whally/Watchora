@@ -2,11 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Globe2, Star } from "lucide-react";
 import WatchlistToggle from "@/components/watchlist-toggle";
-import { films } from "@/lib/catalogue";
+import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
+
+const catalogue = getCatalogueProvider();
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const film = films.find((item) => item.id === Number(id));
+  const film = catalogue.getById(Number(id));
   return {
     title: film ? `${film.title} — Watchora` : "Title not found — Watchora",
     description: film?.description,
@@ -18,7 +20,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   const film = films.find((item) => item.id === Number(id));
   if (!film) notFound();
 
-  const related = films
+  const related = catalogue.getAll()
     .filter((item) => item.id !== film.id && (item.genre === film.genre || item.country === film.country))
     .slice(0, 3);
 
