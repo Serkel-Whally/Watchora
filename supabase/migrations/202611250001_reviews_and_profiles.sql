@@ -18,6 +18,10 @@ create table if not exists public.title_reviews (
   unique (title_id, user_id)
 );
 
+alter table public.title_reviews drop constraint if exists title_reviews_profile_fk;
+alter table public.title_reviews add constraint title_reviews_profile_fk
+  foreign key (user_id) references public.profiles(id) on delete cascade;
+
 create index if not exists title_reviews_public_idx
   on public.title_reviews (title_id, created_at desc) where status = 'approved';
 create index if not exists title_reviews_owner_idx
