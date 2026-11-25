@@ -51,8 +51,6 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
             {(film.originalTitle || film.originalLanguage) && <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/40">{film.originalTitle && <span>Original title: {film.originalTitle}</span>}{film.originalLanguage && <span className="inline-flex items-center gap-1"><Languages size={12}/> Original language: {film.originalLanguage.toUpperCase()}</span>}</div>}
             <div className="mt-8 flex flex-wrap gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-4 py-2.5 text-xs text-white/55"><Globe2 size={13}/> {film.country}</span>
-              <span className="rounded-full border border-white/10 bg-white/[.03] px-4 py-2.5 text-xs text-white/55">{film.genre}</span>
-              <span className="rounded-full border border-white/10 bg-white/[.03] px-4 py-2.5 text-xs text-white/55">{film.year}</span>
             </div>
             <div className="mt-9 flex flex-wrap items-center gap-3"><WatchlistToggle id={film.id} title={film.title}/><Link href="/explore" className="rounded-full bg-[#d9b779] px-5 py-3 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]">Discover more</Link></div>
             <div className="mt-10 rounded-2xl border border-[#d9b779]/20 bg-[#d9b779]/[.05] p-5">
