@@ -29,6 +29,7 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   }, [open]);
 
   return (
+    <>
     <header className={`${overlay ? "absolute left-0 right-0 top-0 z-50 bg-black/20 backdrop-blur-md" : "relative z-30"} border-b border-white/[.08]`}>
       <div className="shell flex h-[76px] items-center justify-between">
         <Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link>
@@ -39,6 +40,7 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           {open ? <X size={19}/> : <Menu size={19}/>}
         </button>
       </div>
+    </header>
       <div className={`fixed inset-0 z-[70] overflow-hidden md:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`} aria-hidden={!open}>
         <button tabIndex={open ? 0 : -1} onClick={() => setOpen(false)} aria-label="Close navigation menu" className={`absolute inset-0 bg-black/75 transition-opacity duration-300 motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`}/>
         <aside id="watchora-site-mobile-menu" aria-label="Mobile navigation" className={`absolute right-0 top-0 flex h-full w-[min(86vw,360px)] flex-col border-l border-white/10 bg-[#0b0c0f] px-7 pb-10 pt-7 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none ${open ? "translate-x-0" : "translate-x-full"}`}>
@@ -56,6 +58,6 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           </div>
         </aside>
       </div>
-    </header>
+    </>
   );
 }
