@@ -32,7 +32,7 @@ export default function Home() {
   useEffect(() => { try { setSaved(JSON.parse(localStorage.getItem("watchora-watchlist") || "[]")); } catch { setSaved([]); } }, []);
   const [showMood, setShowMood] = useState(false);
   const [mood, setMood] = useState("Something uplifting");
-  const filtered = useMemo(() => films.filter((f) => (genre === "All" || f.genre === genre) && (f.title.toLowerCase().includes(query.toLowerCase()) || f.country.toLowerCase().includes(query.toLowerCase()))), [genre, query]);
+  const filtered = useMemo(() => films.filter((f) => !homepageEditorial.featuredTitleIds.includes(f.id) && (genre === "All" || f.genre === genre) && (f.title.toLowerCase().includes(query.toLowerCase()) || f.country.toLowerCase().includes(query.toLowerCase()))), [genre, query]);
   const featuredTitles = useMemo(() => getHomepageFeaturedTitles(), []);
   const homepageCollections = useMemo(() => getHomepageCollections(), []);
   const collectionTones = { warm: "from-[#44372c] to-[#161719]", cool: "from-[#243c42] to-[#14191c]", rose: "from-[#493039] to-[#171518]", gold: "from-[#62502f] to-[#30291d]" };
@@ -60,7 +60,7 @@ export default function Home() {
       </section>
 
       <section id="discover" className="shell scroll-mt-10 py-20">
-        <div className="flex flex-col justify-between gap-7 md:flex-row md:items-end"><div><p className="eyebrow">Your next watch starts here</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">Explore the world of film</h2><p className="mt-3 text-sm text-white/45">A handpicked sample to get your discovery started.</p></div>
+        <div className="flex flex-col justify-between gap-7 md:flex-row md:items-end"><div><p className="eyebrow">Your next watch starts here</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">Keep exploring</h2><p className="mt-3 text-sm text-white/45">More stories to discover beyond our featured picks.</p></div>
           <label className="flex h-12 w-full items-center gap-3 rounded-full border border-white/10 bg-white/[.035] px-4 md:max-w-[310px]"><Search size={16} className="text-white/35"/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search titles or countries..." className="w-full bg-transparent text-xs text-white outline-none placeholder:text-white/30"/></label>
         </div>
         <div className="hide-scrollbar mt-8 flex gap-2 overflow-x-auto pb-2">{genres.map((g) => <button key={g} onClick={() => setGenre(g)} className={`shrink-0 rounded-full border px-4 py-2 text-xs transition ${genre === g ? "border-[#d9b779] bg-[#d9b779] text-[#17130d]" : "border-white/10 text-white/55 hover:border-white/30 hover:text-white"}`}>{g}</button>)}</div>
@@ -76,8 +76,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <section className="shell py-20"><div className="rounded-2xl border border-[#d9b779]/20 bg-[radial-gradient(circle_at_85%_10%,rgba(217,183,121,.13),transparent_35%),#111318] px-7 py-12 md:px-14 md:py-16"><div className="max-w-[650px]"><span className="eyebrow">A little less scrolling</span><h2 className="mt-4 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-5xl">Tell us how you feel.<br/><span className="text-[#d9b779]">We’ll find the story.</span></h2><p className="mt-5 max-w-[480px] text-sm leading-6 text-white/50">Choose a mood and let discovery take a different direction. Your next favourite might surprise you.</p><button onClick={() => setShowMood(true)} className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#d9b779] px-6 py-3.5 text-xs font-bold text-[#17130d] hover:bg-[#edce94]"><Sparkles size={15}/> Open mood finder <ArrowRight size={14}/></button></div></div></section>
 
       <footer className="border-t border-white/[.08] py-9"><div className="shell flex flex-col justify-between gap-5 text-xs text-white/35 sm:flex-row sm:items-center"><Link href="#" className="font-['Manrope'] text-base font-extrabold tracking-[-.06em] text-white/80">watchora<span className="text-[#d9b779]">.</span></Link><p>Discover stories. Find where to watch. Enjoy the journey.</p><p>© 2026 Watchora · Built for the love of stories.</p></div></footer>
 
