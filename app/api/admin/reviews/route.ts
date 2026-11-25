@@ -17,7 +17,7 @@ export async function GET() {
   if (auth.response) return auth.response;
   const { data, error } = await auth.supabase!
     .from("title_reviews")
-    .select("id, title_id, user_id, rating, body, status, created_at, profiles!title_reviews_profile_fk(display_name)")
+    .select("id, title_id, user_id, rating, body, contains_spoilers, status, created_at, profiles!title_reviews_profile_fk(display_name)")
     .eq("status", "pending")
     .order("created_at", { ascending: true })
     .limit(100);
