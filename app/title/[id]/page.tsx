@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Globe2, Star } from "lucide-react";
+import { ArrowLeft, Clock3, Globe2, Languages, Star } from "lucide-react";
 import WatchlistToggle from "@/components/watchlist-toggle";
 import TitleViewTracker from "@/components/title-view-tracker";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
@@ -47,9 +47,12 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
             <h1 className="mt-4 font-['Manrope'] text-4xl font-semibold tracking-[-.06em] md:text-6xl">{film.title}</h1>
             <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/45">
               <span>{film.year}</span><span>{film.genre}</span><span>{film.kind}</span>
+              {film.runtimeMinutes && <span className="inline-flex items-center gap-1"><Clock3 size={12}/> {film.runtimeMinutes} min</span>}
+              {film.seasonCount && <span>{film.seasonCount} seasons</span>}
               <span className="inline-flex items-center gap-1"><Star size={12} className="text-[#d9b779]"/> {film.rating} <span className="text-white/25">sample rating</span></span>
             </div>
             <p className="mt-8 max-w-2xl text-base leading-8 text-white/65">{film.description}</p>
+            {(film.originalTitle || film.originalLanguage) && <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/40">{film.originalTitle && <span>Original title: {film.originalTitle}</span>}{film.originalLanguage && <span className="inline-flex items-center gap-1"><Languages size={12}/> Original language: {film.originalLanguage.toUpperCase()}</span>}</div>}
             <div className="mt-8 flex flex-wrap gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-4 py-2.5 text-xs text-white/55"><Globe2 size={13}/> {film.country}</span>
               <span className="rounded-full border border-white/10 bg-white/[.03] px-4 py-2.5 text-xs text-white/55">{film.genre}</span>
