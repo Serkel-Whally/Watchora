@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SiteHeader from "@/components/site-header";
 import { ArrowRight, Compass } from "lucide-react";
 import { curatedCollections, getCollectionTitles } from "@/lib/curated-collections";
 
@@ -12,12 +13,7 @@ const tones = {
 export default function CollectionsPage() {
   return (
     <main className="min-h-screen">
-      <header className="border-b border-white/[.08]">
-        <div className="shell flex h-[76px] items-center justify-between">
-          <Link href="/" className="font-['Manrope'] text-xl font-extrabold tracking-[-.06em]">watchora<span className="text-[#d9b779]">.</span></Link>
-          <nav className="flex items-center gap-5 text-xs text-white/60"><Link href="/explore" className="hover:text-white">Discover</Link><Link href="/watchlist" className="hover:text-white">Watchlist</Link></nav>
-        </div>
-      </header>
+      <SiteHeader />
       <section className="shell py-14 md:py-20">
         <Link href="/" className="text-xs text-white/40 hover:text-white">← Back home</Link>
         <p className="eyebrow mt-10">A point of view, not an algorithm</p>
