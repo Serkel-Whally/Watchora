@@ -2,7 +2,7 @@
 create table if not exists public.review_comments (
   id uuid primary key default gen_random_uuid(),
   review_id uuid not null references public.title_reviews(id) on delete cascade,
-  author_id uuid not null references auth.users(id) on delete cascade,
+  author_id uuid not null references public.profiles(id) on delete cascade,
   parent_id uuid,
   body text not null check (char_length(btrim(body)) between 2 and 600),
   contains_spoilers boolean not null default false,
