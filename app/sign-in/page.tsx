@@ -46,7 +46,7 @@ export default function SignInPage() {
             <>
               <p className="eyebrow mt-9">Your Watchora account</p>
               <h1 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em]">Sign in to join the conversation</h1>
-              <p className="mt-3 text-sm leading-7 text-white/45">Use your email to receive a secure, password-free sign-in link. You’ll need an account to publish reviews.</p>
+              <p className="mt-3 text-sm leading-7 text-white/45">Use your email to receive a secure, password-free sign-in link. Use your account to publish reviews and keep your watchlist synced across devices.</p>
               <form onSubmit={submit} className="mt-8">
                 <label htmlFor="signin-email" className="text-xs font-medium text-white/65">Email address</label>
                 <div className="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 px-4 focus-within:border-[#d9b779]/50">
