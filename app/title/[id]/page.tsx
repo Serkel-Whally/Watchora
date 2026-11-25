@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function TitlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const film = films.find((item) => item.id === Number(id));
+  const film = catalogue.getById(Number(id));
   if (!film) notFound();
 
   const related = catalogue.getAll()
