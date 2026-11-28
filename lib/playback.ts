@@ -92,7 +92,7 @@ export async function createPlaybackSession(titleId: number): Promise<PlaybackAv
 
     if (assetError) return unavailable("not_configured");
     if (!asset || asset.provider.toLowerCase() !== "cloudflare-stream" ||
-        !/^[a-f0-9]{32}$/i.test(asset.provider_asset_id)) {
+        !/^[a-z0-9]{32}$/i.test(asset.provider_asset_id)) {
       return unavailable("not_licensed");
     }
 
