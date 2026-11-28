@@ -123,3 +123,13 @@ Playback is intentionally unavailable until a licensed media provider and server
 - Published Studio entries use a separate public numeric ID namespace so they cannot collide with the starter catalogue IDs. Their detail pages resolve through the server-side catalogue adapter; the watch route uses the underlying Studio database ID when requesting a playback session.
 - Series detail pages display published season/episode metadata from the Studio database. Public reads remain subject to the database's published-only row-level security policies.
 - This is a metadata integration, not a video integration. The player continues to report playback unavailable until a licensed provider, active territory rights and entitlement checks are connected. The public homepage currently hydrates Studio titles after initial render; curated editorial shelves still use the configured editorial seed data.
+
+
+## Secure Cloudflare Stream playback
+
+- Watchora now supports VOD HLS sessions through a server-side Cloudflare Stream adapter. The player uses native HLS where available and hls.js elsewhere.
+- Media Studio can register assets against both starter titles and Admin Studio titles. Studio titles use the same separate public ID namespace as the homepage and playback routes.
+- The playback adapter requires an authenticated member, a ready asset registered as cloudflare-stream, Cloudflare's requireSignedURLs=true and readyToStream=true checks, and an active rights window covering the viewer's territory or WORLD.
+- Signed manifest tokens are requested server-side with a 15-minute expiry. Playback audit rows are stored in playback_sessions. No permanent video URL or provider API credential is sent to the browser.
+- Configure CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_STREAM_API_TOKEN, CLOUDFLARE_STREAM_CUSTOMER_CODE and SUPABASE_SERVICE_ROLE_KEY as server-only deployment secrets. See [Cloudflare Stream setup](docs/CLOUDFLARE_STREAM.md).
+- This does not yet implement direct uploads, webhook-based ingest, DRM, downloads, live video, subtitle ingestion or subscription entitlements. Only upload media Watchora has distribution rights to stream, and activate rights windows only after legal approval.
