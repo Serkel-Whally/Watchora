@@ -5,7 +5,7 @@ import { ArrowLeft, Clock3, Globe2, Languages, Star, Sparkles, Play } from "luci
 import WatchlistToggle from "@/components/watchlist-toggle";
 import TitleViewTracker from "@/components/title-view-tracker";
 import TitleReviews from "@/components/title-reviews";
-import { getPublicCatalogue, getPublicTitleById } from "@/lib/studio-catalogue";
+import { getPublicCatalogue, getPublicTitleById, getPublishedStudioEpisodes } from "@/lib/studio-catalogue";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,6 +21,8 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   const film = catalogue.getById(Number(id));
   if (!film) notFound();
 
+  const episodes = film.studioId && film.kind === "Series" ? await getPublishedStudioEpisodes(film.studioId) : [];
+  const episodeSeasons = [...new Set(episodes.map((episode) => episode.season_number))];
   const related = (await getPublicCatalogue())
     .filter((item) => item.id !== film.id && (item.genre === film.genre || item.country === film.country))
     .slice(0, 4);
@@ -50,7 +52,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
               {film.originalTitle && <p className="mt-3 text-sm text-white/40">{film.originalTitle}</p>}
 
               <div className="mt-6 flex flex-wrap items-center gap-2 text-[11px] text-white/60">
-                {[String(film.year), film.kind, film.genre, film.country].map((item) => <span key={item} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">{item}</span>)}
+                {[film.year > 0 ? String(film.year) : "Release year TBA", film.kind, film.genre, film.country].map((item) => <span key={item} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">{item}</span>)}
                 {film.runtimeMinutes && <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[.04] px-3 py-2"><Clock3 size={12}/> {film.runtimeMinutes} min</span>}
                 {film.seasonCount && <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">{film.seasonCount} seasons</span>}
               </div>
@@ -78,6 +80,24 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </section>
+
+      {film.kind === "Series" && film.studioId && <section className="border-b border-white/[.08] bg-[#0d0f13] py-12 md:py-16">
+        <div className="shell">
+          <p className="eyebrow">Watch the story unfold</p>
+          <h2 className="mt-2 font-['Manrope'] text-2xl font-semibold tracking-[-.04em]">Episodes & seasons</h2>
+          {episodes.length === 0 ? <p className="mt-4 text-sm text-white/40">Episodes will appear here when they are published by Watchora.</p> : <div className="mt-7 space-y-7">
+            {episodeSeasons.map((season) => <section key={season}>
+              <h3 className="mb-3 text-sm font-semibold text-white/80">Season {season}</h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                {episodes.filter((episode) => episode.season_number === season).map((episode) => <article key={episode.id} className="flex gap-4 rounded-2xl border border-white/[.08] bg-black/20 p-4">
+                  <div className="flex h-12 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[.05] font-mono text-xs text-[#d9b779]">E{String(episode.episode_number).padStart(2, "0")}</div>
+                  <div className="min-w-0"><h4 className="text-sm font-semibold text-white">{episode.title}</h4><p className="mt-1 text-xs leading-5 text-white/45">{episode.description || "Episode details coming soon."}</p>{episode.runtime_minutes && <p className="mt-2 text-[10px] text-white/30">{episode.runtime_minutes} min</p>}</div>
+                </article>)}
+              </div>
+            </section>)}
+          </div>}
+        </div>
+      </section>}
 
       <TitleReviews titleId={film.id} title={film.title} />
 
