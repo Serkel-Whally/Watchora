@@ -29,12 +29,12 @@ function FilmCard({ film, saved, ready, onSave }: { film: Film; saved: boolean; 
   return (
     <article className="min-w-0">
       <Link href={`/title/${film.id}`} aria-label={`View ${film.title}`} className="poster group block ring-1 ring-white/[.06] transition duration-300 hover:-translate-y-1 hover:ring-[#d9b779]/50 hover:shadow-[0_18px_48px_rgba(0,0,0,.38)]">
-        <img src={film.image} alt={`${film.title} poster`} loading="lazy" onError={(e) => { e.currentTarget.style.opacity = "0"; }} />
+        {film.image ? <img src={film.image} alt={`${film.title} poster`} loading="lazy" onError={(e) => { e.currentTarget.style.opacity = "0"; }} /> : <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#27231d] to-[#101115] text-3xl font-semibold text-[#d9b779]/50">{film.title.slice(0, 1)}</div>}
         <span className="absolute left-3 top-3 z-10 rounded-full border border-white/15 bg-black/55 px-2.5 py-1 text-[9px] font-bold tracking-[.16em] text-white/90 backdrop-blur-md">{film.kind.toUpperCase()}</span>
-        <span className="absolute bottom-3 left-3 right-3 z-10"><span className="block font-[Manrope] text-base font-bold leading-tight tracking-[-.025em] text-white sm:text-lg">{film.title}</span><span className="mt-1 block text-[10px] font-medium tracking-wide text-white/65">{film.year} <span className="px-1 text-white/35">/</span> {film.country}</span></span>
+        <span className="absolute bottom-3 left-3 right-3 z-10"><span className="block font-[Manrope] text-base font-bold leading-tight tracking-[-.025em] text-white sm:text-lg">{film.title}</span><span className="mt-1 block text-[10px] font-medium tracking-wide text-white/65">{film.year > 0 ? film.year : "Coming soon"} <span className="px-1 text-white/35">/</span> {film.country}</span></span>
       </Link>
       <div className="mt-3 flex items-center justify-between gap-2">
-        <div className="min-w-0"><p className="truncate text-xs text-white/80">{film.year} <span className="text-white/30">·</span> {film.genre}</p><p className="mt-1 text-[11px] text-white/40">{film.country}</p></div>
+        <div className="min-w-0"><p className="truncate text-xs text-white/80">{film.year > 0 ? film.year : "Coming soon"} <span className="text-white/30">·</span> {film.genre}</p><p className="mt-1 text-[11px] text-white/40">{film.country}</p></div>
         <button onClick={() => onSave(film.id)} aria-label={saved ? "Remove from watchlist" : "Add to watchlist"} aria-pressed={saved} disabled={!ready} className={`rounded-full border p-2 transition ${saved ? "border-[#d9b779] text-[#d9b779]" : "border-white/10 text-white/50 hover:border-white/40 hover:text-white"}`}>{saved ? <Check size={14} /> : <Bookmark size={14} />}</button>
       </div>
     </article>
