@@ -87,3 +87,10 @@ npm run build
 ```
 
 No paid metadata API, database, authentication service or AI service is required to run the current preview.
+
+
+## Playback experience foundation
+
+The streaming UI now includes a dedicated `/watch/[id]` route and reusable playback component. The player accepts only a server-created `PlaybackAvailability` session, supports provider-supplied subtitle tracks, and saves resume position locally in the browser. The homepage's Continue Watching shelf reads this device-local progress.
+
+Playback is intentionally unavailable until a licensed media provider and server-side entitlement checks are configured. Viewing progress is currently device-local and is not synced between signed-in devices. The current sample catalogue does not include episode-level data, so series episode navigation must be populated from verified/licensed metadata before it is exposed.
