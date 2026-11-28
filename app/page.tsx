@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Bookmark, Check, Search, Sparkles, X, SlidersHorizontal, ChevronDown, Play, Info } from "lucide-react";
 
 import { genres, type Film, type TitleKind } from "@/lib/catalogue";
 import SiteHeader from "@/components/site-header";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
-import { filterCatalogue, getFilmDecade, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
+import { filterCatalogue, getCatalogueCountries, getFilmDecade, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
 import { useWatchlist } from "@/lib/use-watchlist";
 import PersonalizedDiscovery from "@/components/personalized-discovery";
 import ContinueWatching from "@/components/continue-watching";
@@ -53,11 +53,23 @@ export default function Home() {
   const { saved, ready, toggle: toggleSave } = useWatchlist();
   const [showMood, setShowMood] = useState(false);
   const [mood, setMood] = useState("Something uplifting");
+  const [studioTitles, setStudioTitles] = useState<Film[]>([]);
 
-  const countries = useMemo(() => catalogue.getCountries(), []);
-  const languageOptions = useMemo(() => Array.from(new Set(catalogue.getAll().map((title) => title.originalLanguage).filter((value): value is string => Boolean(value)))).sort(), []);
-  const decadeOptions = useMemo(() => Array.from(new Set(catalogue.getAll().map((title) => getFilmDecade(title.year)))).sort(), []);
-  const results = useMemo(() => sortCatalogue(filterCatalogue(catalogue.getAll(), { query, genre, kind, country, language, decade }), sort), [query, genre, kind, country, language, decade, sort]);
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/catalogue", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((result) => { if (active && Array.isArray(result?.titles)) setStudioTitles(result.titles); })
+      .catch(() => { /* The sample catalogue remains available when Supabase is offline. */ });
+    return () => { active = false; };
+  }, []);
+
+  const allTitles = useMemo(() => [...studioTitles, ...catalogue.getAll()], [studioTitles]);
+  const countries = useMemo(() => getCatalogueCountries(allTitles), [allTitles]);
+  const languageOptions = useMemo(() => Array.from(new Set(allTitles.map((title) => title.originalLanguage).filter((value): value is string => Boolean(value)))).sort(), [allTitles]);
+  const decadeOptions = useMemo(() => Array.from(new Set(allTitles.filter((title) => title.year > 0).map((title) => getFilmDecade(title.year)))).sort(), [allTitles]);
+  const genreOptions = useMemo(() => [...new Set([...genres, ...allTitles.map((title) => title.genre)])], [allTitles]);
+  const results = useMemo(() => sortCatalogue(filterCatalogue(allTitles, { query, genre, kind, country, language, decade }), sort), [allTitles, query, genre, kind, country, language, decade, sort]);
   const hasFilters = Boolean(query || genre !== "All" || kind !== "All" || country !== "All" || language !== "All" || decade !== "All" || sort !== "featured");
   const clearFilters = () => {
     setQuery(""); setGenre("All"); setKind("All"); setCountry("All");
@@ -70,7 +82,7 @@ export default function Home() {
     <main className="min-h-screen">
       <SiteHeader overlay />
       <section className="relative isolate min-h-[590px] overflow-hidden bg-[#090a0d] md:min-h-[660px]">
-        <div className="absolute inset-0 -z-30 bg-cover bg-[center_28%] opacity-55" style={{ backgroundImage: `url("${featuredTitles[0]?.image ?? catalogue.getAll()[0]?.image ?? ""}")` }}/>
+        <div className="absolute inset-0 -z-30 bg-cover bg-[center_28%] opacity-55" style={{ backgroundImage: `url("${featuredTitles[0]?.image ?? allTitles[0]?.image ?? ""}")` }}/>
         <div className="absolute inset-0 -z-20 bg-gradient-to-r from-[#090a0d] via-[#090a0d]/85 to-[#090a0d]/20"/>
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#090a0d] via-transparent to-black/35"/>
         <div className="shell relative grid min-h-[590px] items-center gap-10 pb-14 pt-28 md:min-h-[660px] md:grid-cols-[minmax(0,1fr)_270px] md:pb-20 md:pt-28">
@@ -156,19 +168,19 @@ export default function Home() {
           <button type="button" onClick={() => setShowFilters((value) => !value)} aria-expanded={showFilters} aria-controls="catalogue-filters" className="flex w-full items-center justify-between gap-3 py-1 text-left md:cursor-default"><span className="flex items-center gap-2 text-xs font-semibold text-white/70"><SlidersHorizontal size={14} className="text-[#d9b779]"/> Filter and sort titles</span><span className="flex items-center gap-2 text-[11px] text-white/45 md:hidden">{[genre !== "All",kind !== "All",country !== "All",language !== "All",decade !== "All"].filter(Boolean).length || "All"} active <ChevronDown size={14} className={`transition-transform ${showFilters ? "rotate-180" : ""}`}/></span></button>
           <div id="catalogue-filters" className={`${showFilters ? "mt-4 block" : "hidden"} md:mt-4 md:block`}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <select aria-label="Format" value={kind} onChange={(e) => updateFilter(() => setKind(e.target.value as TitleKind | "All"))} className="h-11 rounded-xl border border-white/10 bg-[#121419] px-3 text-xs text-white/75"><option value="All">All formats</option><option value="Film">Films</option><option value="Series">Series</option></select>
+            <select aria-label="Format" value={kind} onChange={(e) => updateFilter(() => setKind(e.target.value as TitleKind | "All"))} className="h-11 rounded-xl border border-white/10 bg-[#121419] px-3 text-xs text-white/75"><option value="All">All formats</option><option value="Film">Films</option><option value="Series">Series</option><option value="Anime">Anime</option><option value="Documentary">Documentaries</option></select>
             <select aria-label="Country" value={country} onChange={(e) => updateFilter(() => setCountry(e.target.value))} className="h-11 rounded-xl border border-white/10 bg-[#121419] px-3 text-xs text-white/75"><option value="All">All countries</option>{countries.map((value) => <option key={value} value={value}>{value}</option>)}</select>
             <select aria-label="Original language" value={language} onChange={(e) => updateFilter(() => setLanguage(e.target.value))} className="h-11 rounded-xl border border-white/10 bg-[#121419] px-3 text-xs text-white/75"><option value="All">All languages</option>{languageOptions.map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select>
             <select aria-label="Release decade" value={decade} onChange={(e) => updateFilter(() => setDecade(e.target.value))} className="h-11 rounded-xl border border-white/10 bg-[#121419] px-3 text-xs text-white/75"><option value="All">All decades</option>{decadeOptions.map((value) => <option key={value} value={value}>{value}</option>)}</select>
             <select aria-label="Sort titles" value={sort} onChange={(e) => updateFilter(() => setSort(e.target.value as CatalogueSort))} className="h-11 rounded-xl border border-white/10 bg-[#121419] px-3 text-xs text-white/75"><option value="featured">Featured order</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Highest rated</option></select>
           </div>
-          <div className="hide-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">{genres.map((value) => <button key={value} onClick={() => updateFilter(() => setGenre(value))} aria-pressed={genre === value} className={`shrink-0 rounded-full border px-4 py-2 text-xs transition ${genre === value ? "border-[#d9b779] bg-[#d9b779] text-[#17130d]" : "border-white/10 text-white/55 hover:border-white/30 hover:text-white"}`}>{value}</button>)}</div>
+          <div className="hide-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">{genreOptions.map((value) => <button key={value} onClick={() => updateFilter(() => setGenre(value))} aria-pressed={genre === value} className={`shrink-0 rounded-full border px-4 py-2 text-xs transition ${genre === value ? "border-[#d9b779] bg-[#d9b779] text-[#17130d]" : "border-white/10 text-white/55 hover:border-white/30 hover:text-white"}`}>{value}</button>)}</div>
           </div>
         </div>
 
-        <div className="mt-7 flex flex-wrap items-center justify-between gap-3 text-xs text-white/40"><span>{results.length ? `Showing all ${results.length} titles in this view` : "No matching titles"}</span><div className="flex items-center gap-4">{hasFilters && <button onClick={clearFilters} className="inline-flex items-center gap-1.5 text-[#d9b779] hover:text-[#edce94]"><X size={13}/> Clear filters</button>}<span className="hidden sm:inline">Sample catalogue preview</span></div></div>
+        <div className="mt-7 flex flex-wrap items-center justify-between gap-3 text-xs text-white/40"><span>{results.length ? `Showing all ${results.length} titles in this view` : "No matching titles"}</span><div className="flex items-center gap-4">{hasFilters && <button onClick={clearFilters} className="inline-flex items-center gap-1.5 text-[#d9b779] hover:text-[#edce94]"><X size={13}/> Clear filters</button>}<span className="hidden sm:inline">{studioTitles.length ? "Live Studio catalogue + sample titles" : "Sample catalogue preview"}</span></div></div>
         {results.length ? <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">{results.map((film) => <FilmCard key={film.id} film={film} saved={saved.includes(film.id)} ready={ready} onSave={toggleSave}/>)}</div> : <div className="rounded-2xl border border-white/10 py-20 text-center"><p className="text-sm text-white/55">No titles found.</p><p className="mt-2 text-xs text-white/35">Try a different search or clear your filters.</p><button onClick={clearFilters} className="mt-5 rounded-full border border-white/15 px-4 py-2 text-xs text-white/70 hover:border-[#d9b779]">Clear filters</button></div>}
-        <p className="mt-10 text-center text-[11px] text-white/30">Sample catalogue · Titles and artwork are illustrative, not a live worldwide database. Watchora does not host films or series.</p>
+        <p className="mt-10 text-center text-[11px] text-white/30">{studioTitles.length ? "Published titles from Watchora Studio appear alongside the illustrative starter catalogue." : "Starter catalogue preview · Publish titles in Admin Studio to add your own catalogue entries."} Publishing metadata does not provide streaming rights or playable video.</p>
       </section>
 
 
