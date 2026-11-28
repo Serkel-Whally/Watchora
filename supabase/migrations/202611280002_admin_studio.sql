@@ -73,7 +73,7 @@ create policy "Admins manage episodes"
 
 grant select on public.content_catalogue, public.content_episodes to anon, authenticated;
 grant insert, update, delete on public.content_catalogue, public.content_episodes to authenticated;
-grant usage, select on all sequences in schema public to authenticated;
+grant usage, select on sequence public.content_catalogue_id_seq, public.content_episodes_id_seq to authenticated;
 
 comment on table public.content_catalogue is
   'Editorial source of truth for Watchora titles. Draft and archived records are admin-only.';
