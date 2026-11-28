@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Film, Plus, Search, Pencil, X, Check, LoaderCircle, Clapperboard, LibraryBig, Eye, Archive, AlertCircle } from "lucide-react";
+import { ArrowLeft, Film, Plus, Search, Pencil, X, Check, LoaderCircle, Clapperboard, LibraryBig, Eye, Archive, AlertCircle, ListVideo } from "lucide-react";
 
 type TitleKind = "Film" | "Series" | "Anime" | "Documentary";
 type TitleStatus = "draft" | "published" | "archived";
@@ -181,7 +181,7 @@ export default function AdminStudio() {
               {filtered.map((title) => <div key={title.id} className="flex items-center gap-3 p-3.5 transition hover:bg-white/[.02] sm:gap-4 sm:px-5">
                 <div className="h-[66px] w-12 shrink-0 overflow-hidden rounded-lg bg-white/[.05] sm:h-[76px] sm:w-[54px]">{title.poster_url ? <img src={title.poster_url} alt="" className="h-full w-full object-cover"/> : <div className="flex h-full items-center justify-center text-white/20"><Film size={18}/></div>}</div>
                 <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h3 className="truncate text-sm font-semibold">{title.title}</h3><span className={`rounded-full px-2 py-1 text-[9px] font-semibold ${title.status === "published" ? "bg-emerald-400/10 text-emerald-300" : title.status === "archived" ? "bg-white/10 text-white/40" : "bg-amber-300/10 text-amber-200"}`}>{statusLabel(title.status)}</span></div><p className="mt-1 truncate text-[11px] text-white/40">{title.kind}{title.release_year ? ` · ${title.release_year}` : ""}{title.country ? ` · ${title.country}` : ""}</p><p className="mt-1 truncate text-[10px] text-white/25">{title.genres.join(" · ") || "No genres assigned"}</p></div>
-                <button onClick={() => openEdit(title)} aria-label={`Edit ${title.title}`} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 text-white/50 transition hover:border-[#d9b779]/50 hover:text-[#d9b779]"><Pencil size={14}/></button>
+                <div className="flex shrink-0 items-center gap-2">{title.kind === "Series" && <Link href={`/admin/studio/${title.id}/episodes`} aria-label={`Manage episodes for ${title.title}`} title="Manage episodes" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/50 transition hover:border-[#d9b779]/50 hover:text-[#d9b779]"><ListVideo size={15}/></Link>}<button onClick={() => openEdit(title)} aria-label={`Edit ${title.title}`} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/50 transition hover:border-[#d9b779]/50 hover:text-[#d9b779]"><Pencil size={14}/></button></div>
               </div>)}
             </div>}
           <div className="border-t border-white/[.06] px-5 py-3 text-[10px] text-white/25">Showing {filtered.length} of {titles.length} titles · Maximum 250 per view</div>
