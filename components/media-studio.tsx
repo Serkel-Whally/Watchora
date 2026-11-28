@@ -249,7 +249,7 @@ export default function MediaStudio() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-3">
             <label className="block text-xs text-white/55">Catalogue title
-              <select value={titleId} onChange={(event) => setTitleId(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none focus:border-[#d9b779]/60">{titles.map((film) => <option key={film.id} value={film.id}>{film.title} ({film.year || "Year TBA"}) · {film.kind}</option>)}</select>
+              <select value={titleId} disabled={uploading} onChange={(event) => setTitleId(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none focus:border-[#d9b779]/60 disabled:opacity-50">{titles.map((film) => <option key={film.id} value={film.id}>{film.title} ({film.year || "Year TBA"}) · {film.kind}</option>)}</select>
             </label>
             <label className="block text-xs text-white/55">Video file
               <input ref={fileInputRef} type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" disabled={uploading} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} className="mt-2 block w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white/65 file:mr-3 file:rounded-full file:border-0 file:bg-[#d9b779] file:px-3 file:py-2 file:text-[10px] file:font-bold file:text-[#17130d]"/>
