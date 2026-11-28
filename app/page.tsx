@@ -10,6 +10,7 @@ import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
 import { filterCatalogue, getFilmDecade, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
 import { useWatchlist } from "@/lib/use-watchlist";
 import PersonalizedDiscovery from "@/components/personalized-discovery";
+import ContinueWatching from "@/components/continue-watching";
 import { getHomepageFeaturedTitles, getHomepageCollections } from "@/lib/editorial";
 import { getCollectionTitles } from "@/lib/curated-collections";
 
@@ -97,6 +98,8 @@ export default function Home() {
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#d9b779]/30 to-transparent"/>
       </section>
+
+      <ContinueWatching />
 
       <PersonalizedDiscovery />
 
