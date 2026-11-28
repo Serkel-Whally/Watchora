@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, Bookmark, Check, Globe2, Search, Sparkles, X, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { ArrowRight, Bookmark, Check, Search, Sparkles, X, SlidersHorizontal, ChevronDown, Play, Info } from "lucide-react";
 
 import { genres, type Film, type TitleKind } from "@/lib/catalogue";
 import SiteHeader from "@/components/site-header";
@@ -68,25 +68,34 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <SiteHeader overlay />
-      <section className="hero-art relative flex min-h-[390px] items-end bg-[#15171b] pb-14 pt-28 md:min-h-[450px] md:pb-16" style={{ backgroundImage: "linear-gradient(90deg, #090a0d 0%, rgba(9,10,13,.93) 24%, rgba(9,10,13,.52) 58%, rgba(9,10,13,.2) 100%), linear-gradient(0deg, #090a0d 0%, transparent 48%), url('https://image.tmdb.org/t/p/original/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')" }}>
-        <div className="shell relative z-10 grid grid-cols-1 items-end gap-8 md:grid-cols-[minmax(0,1fr)_300px]">
-          <div className="max-w-[690px]">
-            <div className="mb-6 flex items-center gap-3"><span className="h-px w-8 bg-[#d9b779]"/><span className="eyebrow">A world of stories awaits</span></div>
-            <h1 className="font-['Manrope'] text-[clamp(3.1rem,7vw,6.3rem)] font-semibold leading-[.99] tracking-[-.075em]">Explore the world of <span className="text-[#d9b779]">film.</span></h1>
-            <p className="mt-7 max-w-[470px] text-[15px] leading-7 text-white/60">Browse films and series from across the world. Search the catalogue, discover new perspectives and find your next watch.</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <a href="#discover" className="inline-flex items-center gap-3 rounded-full bg-[#d9b779] px-6 py-3.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]">Discover films & series <ArrowRight size={15}/></a>
-              <button onClick={() => setShowMood(true)} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[.04] px-6 py-3.5 text-xs font-semibold text-white transition hover:bg-white/10"><Sparkles size={14}/> Find by mood</button>
+      <section className="relative isolate min-h-[590px] overflow-hidden bg-[#090a0d] md:min-h-[660px]">
+        <div className="absolute inset-0 -z-30 bg-cover bg-[center_28%] opacity-55" style={{ backgroundImage: \`url("\${featuredTitles[0]?.image ?? catalogue.getAll()[0]?.image ?? ""}")\` }}/>
+        <div className="absolute inset-0 -z-20 bg-gradient-to-r from-[#090a0d] via-[#090a0d]/85 to-[#090a0d]/20"/>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#090a0d] via-transparent to-black/35"/>
+        <div className="shell relative grid min-h-[590px] items-center gap-10 pb-14 pt-28 md:min-h-[660px] md:grid-cols-[minmax(0,1fr)_270px] md:pb-20 md:pt-28">
+          <div className="max-w-[720px]">
+            <div className="mb-6 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#d9b779]/40 bg-[#d9b779]/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.2em] text-[#e7c991]">Watchora spotlight</span><span className="text-[10px] uppercase tracking-[.18em] text-white/45">Stories without borders</span></div>
+            <p className="eyebrow">Featured story · {featuredTitles[0]?.year ?? "Discover"}</p>
+            <h1 className="mt-4 max-w-3xl font-['Manrope'] text-[clamp(3.4rem,8vw,6.8rem)] font-semibold leading-[.91] tracking-[-.075em]">{featuredTitles[0]?.title ?? "A world of stories"}<span className="text-[#d9b779]">.</span></h1>
+            <p className="mt-6 max-w-[540px] text-sm leading-7 text-white/65 md:text-base">{featuredTitles[0]?.description ?? "Discover films and series from every corner of the world."}</p>
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-white/55"><span>{featuredTitles[0]?.year}</span><span>·</span><span>{featuredTitles[0]?.kind}</span><span>·</span><span>{featuredTitles[0]?.genre}</span><span>·</span><span>{featuredTitles[0]?.country}</span></div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {featuredTitles[0] && <Link href={\`/watch/\${featuredTitles[0].id}\`} className="inline-flex items-center gap-2 rounded-full bg-[#d9b779] px-6 py-3.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]"><Play size={15} fill="currentColor"/> Watch now</Link>}
+              {featuredTitles[0] && <Link href={\`/title/\${featuredTitles[0].id}\`} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-6 py-3.5 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10"><Info size={15}/> More info</Link>}
+              <button onClick={() => setShowMood(true)} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3.5 text-xs font-semibold text-white/70 transition hover:border-white/35 hover:text-white"><Sparkles size={14}/> Find by mood</button>
             </div>
-            <form onSubmit={(event) => { event.preventDefault(); document.getElementById("discover")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-6 flex h-12 max-w-[490px] items-center gap-3 rounded-full border border-white/15 bg-black/35 px-4 shadow-lg backdrop-blur-md">
+            <form onSubmit={(event) => { event.preventDefault(); document.getElementById("discover")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-8 flex h-12 max-w-[510px] items-center gap-3 rounded-full border border-white/15 bg-black/40 px-4 shadow-lg backdrop-blur-md">
               <Search size={16} className="shrink-0 text-[#d9b779]"/>
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search films, series, countries or genres..." aria-label="Search the Watchora catalogue" className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-white/40"/>
-              <button type="submit" aria-label="View search results" className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold text-white/80 transition hover:bg-[#d9b779] hover:text-[#17130d]">Search</button>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search movies, series and more..." aria-label="Search Watchora" className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-white/40"/>
+              <button type="submit" aria-label="Search catalogue" className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold text-white/80 transition hover:bg-[#d9b779] hover:text-[#17130d]">Search</button>
             </form>
           </div>
-          <div className="max-w-[420px] border-l border-[#d9b779]/50 pl-4 md:ml-auto md:max-w-[270px] md:rounded-2xl md:border md:border-white/10 md:bg-black/25 md:p-5 md:backdrop-blur-md"><p className="eyebrow">The Watchora approach</p><p className="mt-3 font-['Manrope'] text-lg font-semibold leading-snug">Great stories don’t have borders.</p><p className="mt-2 text-xs leading-5 text-white/50">Discover acclaimed cinema, hidden gems and fresh perspectives from around the globe.</p><div className="mt-5 flex items-center gap-2 text-[11px] text-[#d9b779]"><Globe2 size={13}/> One world. Endless stories.</div></div>
+          {featuredTitles[0] && <Link href={\`/title/\${featuredTitles[0].id}\`} className="group hidden max-w-[230px] justify-self-end md:block">
+            <div className="poster overflow-hidden rounded-2xl shadow-[0_28px_80px_rgba(0,0,0,.6)] ring-1 ring-white/20 transition duration-500 group-hover:-translate-y-2 group-hover:ring-[#d9b779]/50"><img src={featuredTitles[0].image} alt={\`\${featuredTitles[0].title} poster\`}/><span className="absolute bottom-4 left-4 right-4 z-10 text-sm font-bold text-white">Explore this story <ArrowRight size={13} className="ml-1 inline"/></span></div>
+            <p className="mt-3 text-center text-[9px] uppercase tracking-[.2em] text-white/35">Selected for Watchora</p>
+          </Link>}
         </div>
-        <div className="absolute bottom-7 right-8 hidden items-center gap-2 text-[10px] uppercase tracking-[.2em] text-white/35 lg:flex"><span>Scroll to discover</span><ArrowDown size={13}/></div>
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#d9b779]/30 to-transparent"/>
       </section>
 
       <PersonalizedDiscovery />
@@ -94,9 +103,9 @@ export default function Home() {
       <section className="shell py-10 md:py-14">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="eyebrow">The Watchora edit</p>
-            <h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">Stories worth discovering.</h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-white/45">A considered selection to help you find your next favourite, from the Watchora catalogue.</p>
+            <p className="eyebrow">Popular on Watchora</p>
+            <h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">Find your next favourite.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Explore the stories getting the spotlight across our global catalogue.</p>
           </div>
           <a href="#discover" className="inline-flex items-center gap-2 text-xs font-semibold text-[#d9b779] transition hover:text-[#edce94]">Explore the full catalogue <ArrowRight size={14}/></a>
         </div>
@@ -163,7 +172,7 @@ export default function Home() {
 
       <section className="border-y border-white/[.07] bg-[#0d0f13] py-14"><div className="shell flex flex-col items-start justify-between gap-5 md:flex-row md:items-center"><div><p className="eyebrow">More than a catalogue</p><h2 className="mt-2 font-['Manrope'] text-2xl font-semibold">Discover what the community is watching.</h2><p className="mt-2 text-sm text-white/45">Explore member reviews, thoughtful recommendations and the people behind them.</p></div><Link href="/community" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-xs font-semibold text-white/75 transition hover:border-[#d9b779] hover:text-[#d9b779]">Meet the community <ArrowRight size={14}/></Link></div></section>
 
-      <footer className="border-t border-white/[.08] py-9"><div className="shell flex flex-col justify-between gap-5 text-xs text-white/35 sm:flex-row sm:items-center"><Link href="/" className="font-['Manrope'] text-base font-extrabold tracking-[-.06em] text-white/80">watchora<span className="text-[#d9b779]">.</span></Link><p>Discover stories. Find where to watch. Enjoy the journey.</p><p>© 2026 Watchora · Built for the love of stories.</p></div></footer>
+      <footer className="border-t border-white/[.08] py-9"><div className="shell flex flex-col justify-between gap-5 text-xs text-white/35 sm:flex-row sm:items-center"><Link href="/" className="font-['Manrope'] text-base font-extrabold tracking-[-.06em] text-white/80">watchora<span className="text-[#d9b779]">.</span></Link><p>Your next story starts here.</p><p>© 2026 Watchora · Built for the love of stories.</p></div></footer>
 
       {showMood && <div className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-5 backdrop-blur-sm" onClick={() => setShowMood(false)}><div className="w-full max-w-[430px] rounded-2xl border border-white/10 bg-[#121419] p-7" onClick={(e) => e.stopPropagation()}><div className="flex items-center justify-between"><span className="eyebrow">Mood finder</span><button onClick={() => setShowMood(false)} className="text-white/45 hover:text-white"><X size={18}/></button></div><h3 className="mt-4 font-['Manrope'] text-2xl font-semibold">What are you in the mood for?</h3><p className="mt-2 text-xs text-white/45">Pick a feeling. We’ll narrow the sample catalogue.</p><div className="mt-6 grid gap-2">{["Something uplifting","A thought-provoking story","A little suspense","A world to escape into"].map((value) => <button key={value} onClick={() => setMood(value)} className={`rounded-xl border px-4 py-3 text-left text-sm transition ${mood === value ? "border-[#d9b779] bg-[#d9b779]/10 text-[#e8c990]" : "border-white/10 text-white/65 hover:border-white/30"}`}>{value}</button>)}</div><button onClick={() => {setGenre(mood.includes("suspense") ? "Thriller" : mood.includes("escape") ? "Animation" : "Drama");setShowFilters(true);setShowMood(false);document.getElementById("discover")?.scrollIntoView({behavior:"smooth"});}} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#d9b779] py-3.5 text-xs font-bold text-[#17130d]">Show me something <ArrowRight size={14}/></button></div></div>}
     </main>
