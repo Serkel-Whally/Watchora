@@ -18,6 +18,15 @@ type StudioRow = {
   backdrop_url: string | null;
 };
 
+export type PublicStudioEpisode = {
+  id: number;
+  season_number: number;
+  episode_number: number;
+  title: string;
+  description: string;
+  runtime_minutes: number | null;
+};
+
 function toFilm(row: StudioRow): Film {
   return {
     id: STUDIO_PUBLIC_ID_OFFSET + row.id,
@@ -28,7 +37,7 @@ function toFilm(row: StudioRow): Film {
     genre: row.genres?.[0] ?? "Uncategorised",
     country: row.country || "International",
     rating: "—",
-    image: row.poster_url || row.backdrop_url || "/images/title-placeholder.svg",
+    image: row.poster_url || row.backdrop_url || "",
     description: row.description,
     originalLanguage: row.original_language || undefined,
   };
@@ -51,6 +60,24 @@ export async function getPublishedStudioTitles(): Promise<Film[]> {
       .limit(500);
     if (error || !data) return [];
     return (data as StudioRow[]).map(toFilm);
+  } catch {
+    return [];
+  }
+}
+
+export async function getPublishedStudioEpisodes(titleId: number): Promise<PublicStudioEpisode[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("content_episodes")
+      .select("id,season_number,episode_number,title,description,runtime_minutes")
+      .eq("title_id", titleId)
+      .eq("status", "published")
+      .order("season_number", { ascending: true })
+      .order("episode_number", { ascending: true });
+    if (error || !data) return [];
+    return data as PublicStudioEpisode[];
   } catch {
     return [];
   }
