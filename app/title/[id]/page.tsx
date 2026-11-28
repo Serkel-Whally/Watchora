@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SiteHeader from "@/components/site-header";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock3, Globe2, Languages, Star, Sparkles } from "lucide-react";
+import { ArrowLeft, Clock3, Globe2, Languages, Star, Sparkles, Play } from "lucide-react";
 import WatchlistToggle from "@/components/watchlist-toggle";
 import TitleViewTracker from "@/components/title-view-tracker";
 import TitleReviews from "@/components/title-reviews";
