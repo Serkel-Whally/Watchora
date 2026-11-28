@@ -5,13 +5,11 @@ import { ArrowLeft, Clock3, Globe2, Languages, Star, Sparkles, Play } from "luci
 import WatchlistToggle from "@/components/watchlist-toggle";
 import TitleViewTracker from "@/components/title-view-tracker";
 import TitleReviews from "@/components/title-reviews";
-import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
-
-const catalogue = getCatalogueProvider();
+import { getPublicCatalogue, getPublicTitleById } from "@/lib/studio-catalogue";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const film = catalogue.getById(Number(id));
+  const film = await getPublicTitleById(Number(id));
   return {
     title: film ? `${film.title} — Watchora` : "Title not found — Watchora",
     description: film?.description,
@@ -23,7 +21,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   const film = catalogue.getById(Number(id));
   if (!film) notFound();
 
-  const related = catalogue.getAll()
+  const related = (await getPublicCatalogue())
     .filter((item) => item.id !== film.id && (item.genre === film.genre || item.country === film.country))
     .slice(0, 4);
 
