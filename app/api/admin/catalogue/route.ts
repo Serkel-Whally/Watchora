@@ -49,8 +49,8 @@ function parseRecord(input: unknown) {
   const poster = item.poster_url ? validImage(item.poster_url) : null;
   const backdrop = item.backdrop_url ? validImage(item.backdrop_url) : null;
   if (!title || !slug || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || description === null || country === null || originalLanguage === null ||
-      typeof kind !== "string" || !["Film", "Series", "Anime", "Documentary"].includes(kind) ||
-      typeof status !== "string" || !["draft", "published", "archived"].includes(status) ||
+      typeof kind !== "string" || !(["Film", "Series", "Anime", "Documentary"] as string[]).includes(kind) ||
+      typeof status !== "string" || !(["draft", "published", "archived"] as string[]).includes(status) ||
       (year !== null && (!Number.isInteger(year) || year < 1888 || year > 2200)) ||
       genres === null || (item.poster_url && !poster) || (item.backdrop_url && !backdrop)) return null;
   return {
