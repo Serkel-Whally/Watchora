@@ -22,6 +22,11 @@ export default function MediaStudio() {
   const [providerAssetId, setProviderAssetId] = useState("");
   const [status, setStatus] = useState("pending");
   const [query, setQuery] = useState("");
+  const [rightsAssetId, setRightsAssetId] = useState("");
+  const [territoryCode, setTerritoryCode] = useState("WORLD");
+  const [rightsStart, setRightsStart] = useState("");
+  const [rightsEnd, setRightsEnd] = useState("");
+  const [savingRights, setSavingRights] = useState(false);
 
   const titleMap = useMemo(() => new Map(films.map((film) => [film.id, film])), []);
   const filteredAssets = assets.filter((asset) => {
@@ -61,6 +66,18 @@ export default function MediaStudio() {
       setNotice("Media asset registered. Playback still requires a configured provider adapter and active rights.");
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to register media asset."); }
     finally { setSaving(false); }
+  }
+
+  async function addRightsWindow(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setSavingRights(true); setError(""); setNotice("");
+    try {
+      const response = await fetch("/api/admin/rights-windows", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mediaAssetId: rightsAssetId, territoryCode, startsAt: new Date(rightsStart).toISOString(), endsAt: rightsEnd ? new Date(rightsEnd).toISOString() : null }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to create rights window.");
+      setAssets((current) => current.map((asset) => asset.id === rightsAssetId ? { ...asset, rights_windows: [...(asset.rights_windows ?? []), result.rightsWindow] } : asset));
+      setNotice("Rights window saved as draft. Activate it only after legal approval."); setRightsEnd("");
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to create rights window."); }
+    finally { setSavingRights(false); }
   }
 
   async function updateStatus(id: string, nextStatus: string) {
@@ -124,6 +141,19 @@ export default function MediaStudio() {
             </ul>
             <p className="mt-6 rounded-xl border border-[#d9b779]/15 bg-[#d9b779]/[.04] p-4 text-xs leading-6 text-[#d9b779]/80">A “ready” label is an editorial status only. It does not grant rights or create a playable session.</p>
           </aside>
+        </section>
+
+        <section className="mt-8 rounded-2xl border border-white/10 bg-[#101216] p-5 sm:p-6">
+          <h2 className="font-['Manrope'] text-lg font-semibold">Distribution rights window</h2>
+          <p className="mt-1 text-xs text-white/40">Create a territory and time-bound rights record. New records start as drafts.</p>
+          <form onSubmit={addRightsWindow} className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <select required value={rightsAssetId} onChange={(event) => setRightsAssetId(event.target.value)} className="rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white"><option value="">Choose asset</option>{assets.map((asset) => <option key={asset.id} value={asset.id}>{titleMap.get(asset.title_id)?.title || ("Title #" + asset.title_id)} · {asset.provider}</option>)}</select>
+            <input required value={territoryCode} onChange={(event) => setTerritoryCode(event.target.value.toUpperCase())} maxLength={5} placeholder="WORLD or GH" className="rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white"/>
+            <input required type="datetime-local" value={rightsStart} onChange={(event) => setRightsStart(event.target.value)} className="rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white"/>
+            <input type="datetime-local" value={rightsEnd} onChange={(event) => setRightsEnd(event.target.value)} className="rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white"/>
+            <button disabled={savingRights || assets.length === 0} className="rounded-full bg-[#d9b779] px-4 py-3 text-xs font-bold text-[#17130d] disabled:opacity-50">{savingRights ? "Saving…" : "Add draft window"}</button>
+          </form>
+          <p className="mt-3 text-[10px] text-white/30">Territory accepts WORLD or an ISO two-letter country code. Leave end date empty for an open-ended agreement.</p>
         </section>
 
         <section className="mt-10">
