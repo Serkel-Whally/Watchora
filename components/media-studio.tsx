@@ -21,7 +21,7 @@ export default function MediaStudio() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [titleId, setTitleId] = useState(String(films[0]?.id ?? ""));
-  const [provider, setProvider] = useState("");
+  const [provider, setProvider] = useState("cloudflare-stream");
   const [providerAssetId, setProviderAssetId] = useState("");
   const [status, setStatus] = useState("pending");
   const [query, setQuery] = useState("");
@@ -78,7 +78,7 @@ export default function MediaStudio() {
       if (!response.ok) throw new Error(result.error || "Unable to register media asset.");
       setAssets((current) => [result.asset, ...current]);
       setProviderAssetId("");
-      setNotice("Media asset registered. Playback still requires a configured provider adapter and active rights.");
+      setNotice("Asset registered. Playback also requires Cloudflare readiness, signed-URL privacy and an active territory rights window.");
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to register media asset."); }
     finally { setSaving(false); }
   }
@@ -154,7 +154,7 @@ export default function MediaStudio() {
               {titles.map((film) => <option key={film.id} value={film.id}>{film.title} ({film.year || "Year TBA"}) · {film.kind}</option>)}
             </select>
             <label className="mt-4 block text-xs text-white/55">Video provider</label>
-            <input required minLength={2} maxLength={80} value={provider} onChange={(event) => setProvider(event.target.value)} placeholder="e.g. mux, cloudflare-stream" className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d9b779]/60"/>
+            <input required minLength={2} maxLength={80} value={provider} onChange={(event) => setProvider(event.target.value)} placeholder="cloudflare-stream" className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d9b779]/60"/>
             <label className="mt-4 block text-xs text-white/55">Provider asset ID</label>
             <input required minLength={2} maxLength={200} value={providerAssetId} onChange={(event) => setProviderAssetId(event.target.value)} placeholder="Provider's asset identifier" className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d9b779]/60"/>
             <label className="mt-4 block text-xs text-white/55">Processing status</label>
@@ -170,7 +170,7 @@ export default function MediaStudio() {
               <li className="flex gap-3"><Film size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Confirm written distribution rights for the title.</li>
               <li className="flex gap-3"><Tv2 size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Record permitted territories and start/end dates.</li>
               <li className="flex gap-3"><Video size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Verify provider ingest, encoding and playback status.</li>
-              <li className="flex gap-3"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Validate entitlement, signed playback and DRM requirements server-side.</li>
+              <li className="flex gap-3"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Confirm whether the licence requires DRM; DRM support is not enabled yet.</li>
             </ul>
             <p className="mt-6 rounded-xl border border-[#d9b779]/15 bg-[#d9b779]/[.04] p-4 text-xs leading-6 text-[#d9b779]/80">A “ready” label is an editorial status only. It does not grant rights or create a playable session.</p>
           </aside>
