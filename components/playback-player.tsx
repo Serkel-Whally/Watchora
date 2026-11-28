@@ -32,16 +32,44 @@ export default function PlaybackPlayer({ title, playback }: { title: Film; playb
     const now = Date.now();
     if (!force && now - lastSavedAt.current < 10000) return;
     lastSavedAt.current = now;
+    const completed = video.ended || video.duration - video.currentTime < 20;
+    const position = completed ? 0 : Math.floor(video.currentTime);
+    const duration = Math.floor(video.duration);
     const records = readProgress().filter((record) => record.titleId !== title.id);
-    const position = video.ended || video.duration - video.currentTime < 20 ? 0 : video.currentTime;
-    if (position > 0) records.unshift({ titleId: title.id, position, duration: video.duration, updatedAt: now });
+    if (position > 0) records.unshift({ titleId: title.id, position, duration, updatedAt: now });
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records.slice(0, 50))); } catch { /* Keep playback usable when storage is full. */ }
+
+    // Signed-in members sync progress across devices. Guests retain local progress.
+    void fetch("/api/viewing-progress", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ titleId: title.id, position, duration, completed }),
+      keepalive: force,
+    }).catch(() => { /* Local progress remains available when offline or signed out. */ });
   }, [title.id]);
 
   useEffect(() => {
     const record = readProgress().find((item) => item.titleId === title.id);
     if (record && record.position > 10 && record.position < record.duration - 20) setResumePosition(record.position);
     setResumeReady(true);
+
+    let active = true;
+    void fetch(`/api/viewing-progress?titleId=${title.id}`, { cache: "no-store" })
+      .then(async (response) => response.ok ? response.json() : null)
+      .then((result) => {
+        const progress = result?.progress;
+        if (!active || !progress || progress.completed) return;
+        const position = Number(progress.position_seconds);
+        const duration = Number(progress.duration_seconds);
+        if (Number.isFinite(position) && Number.isFinite(duration) && position > 10 && position < duration - 20) {
+          setResumePosition(position);
+          const records = readProgress().filter((item) => item.titleId !== title.id);
+          records.unshift({ titleId: title.id, position, duration, updatedAt: Date.parse(progress.updated_at) || Date.now() });
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records.slice(0, 50))); } catch { /* no-op */ }
+        }
+      })
+      .catch(() => { /* Account sync is optional; local progress remains usable. */ });
+    return () => { active = false; };
   }, [title.id]);
 
   useEffect(() => {
@@ -65,7 +93,16 @@ export default function PlaybackPlayer({ title, playback }: { title: Film; playb
 
   const clearResume = () => {
     const video = videoRef.current;
-    if (video) video.currentTime = 0;
+    if (video) {
+      video.currentTime = 0;
+      if (Number.isFinite(video.duration) && video.duration > 0) {
+        void fetch("/api/viewing-progress", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ titleId: title.id, position: 0, duration: Math.floor(video.duration), completed: false }),
+        }).catch(() => undefined);
+      }
+    }
     setResumePosition(0);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(readProgress().filter((item) => item.titleId !== title.id))); } catch { /* no-op */ }
   };
