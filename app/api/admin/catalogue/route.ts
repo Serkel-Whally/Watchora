@@ -3,6 +3,9 @@ import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase
 
 export const dynamic = "force-dynamic";
 
+type TitleKind = "Film" | "Series" | "Anime" | "Documentary";
+type TitleStatus = "draft" | "published" | "archived";
+
 async function requireAdmin() {
   if (!isSupabaseConfigured()) return { response: NextResponse.json({ error: "Supabase is not configured." }, { status: 503 }) };
   const supabase = await createSupabaseServerClient();
@@ -39,19 +42,20 @@ function parseRecord(input: unknown) {
   const originalLanguage = cleanText(item.original_language ?? "", 20);
   const kind = item.kind;
   const status = item.status ?? "draft";
-  const year = item.release_year === "" || item.release_year === null ? null : Number(item.release_year);
+  const rawYear = item.release_year;
+  const year = rawYear === undefined || rawYear === "" || rawYear === null ? null : Number(rawYear);
   const genres = Array.isArray(item.genres) && item.genres.length <= 12 && item.genres.every((g) => typeof g === "string" && g.trim().length > 0 && g.length <= 40)
     ? [...new Set(item.genres.map((g) => (g as string).trim()))] : null;
   const poster = item.poster_url ? validImage(item.poster_url) : null;
   const backdrop = item.backdrop_url ? validImage(item.backdrop_url) : null;
-  if (!title || !title.length || !slug || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || description === null || country === null || originalLanguage === null ||
-      !["Film", "Series", "Anime", "Documentary"].includes(String(kind)) ||
-      !["draft", "published", "archived"].includes(String(status)) ||
+  if (!title || !slug || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || description === null || country === null || originalLanguage === null ||
+      typeof kind !== "string" || !["Film", "Series", "Anime", "Documentary"].includes(kind) ||
+      typeof status !== "string" || !["draft", "published", "archived"].includes(status) ||
       (year !== null && (!Number.isInteger(year) || year < 1888 || year > 2200)) ||
       genres === null || (item.poster_url && !poster) || (item.backdrop_url && !backdrop)) return null;
   return {
-    title, slug, kind, description, release_year: year, genres, country,
-    original_language: originalLanguage, poster_url: poster, backdrop_url: backdrop, status,
+    title, slug, kind: kind as TitleKind, description, release_year: year, genres, country,
+    original_language: originalLanguage, poster_url: poster, backdrop_url: backdrop, status: status as TitleStatus,
   };
 }
 
