@@ -247,9 +247,12 @@ export default function MediaStudio() {
             <div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#d9b779]">Direct ingest</p><h2 className="mt-2 font-['Manrope'] text-xl font-semibold">Upload a video to Watchora</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-white/45">Videos upload directly from your browser to Cloudflare using resumable transfer. Your file does not pass through the Watchora application server, and the upload is created as private.</p></div>
             <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] text-white/45">Up to 30 GB</span>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-[minmax(0,1fr)_190px]">
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <label className="block text-xs text-white/55">Catalogue title
+              <select value={titleId} onChange={(event) => setTitleId(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none focus:border-[#d9b779]/60">{titles.map((film) => <option key={film.id} value={film.id}>{film.title} ({film.year || "Year TBA"}) · {film.kind}</option>)}</select>
+            </label>
             <label className="block text-xs text-white/55">Video file
-              <input type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" disabled={uploading} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} className="mt-2 block w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white/65 file:mr-3 file:rounded-full file:border-0 file:bg-[#d9b779] file:px-3 file:py-2 file:text-[10px] file:font-bold file:text-[#17130d]"/>
+              <input ref={fileInputRef} type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" disabled={uploading} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} className="mt-2 block w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white/65 file:mr-3 file:rounded-full file:border-0 file:bg-[#d9b779] file:px-3 file:py-2 file:text-[10px] file:font-bold file:text-[#17130d]"/>
             </label>
             <label className="block text-xs text-white/55">Maximum duration (seconds)
               <input type="number" min="1" max="36000" value={maxDurationSeconds} disabled={uploading} onChange={(event) => setMaxDurationSeconds(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none focus:border-[#d9b779]/60"/>
