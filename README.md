@@ -133,3 +133,5 @@ Playback is intentionally unavailable until a licensed media provider and server
 - Signed manifest tokens are requested server-side with a 15-minute expiry. Playback audit rows are stored in playback_sessions. No permanent video URL or provider API credential is sent to the browser.
 - Configure CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_STREAM_API_TOKEN, CLOUDFLARE_STREAM_CUSTOMER_CODE and SUPABASE_SERVICE_ROLE_KEY as server-only deployment secrets. See [Cloudflare Stream setup](docs/CLOUDFLARE_STREAM.md).
 - This does not yet implement direct uploads, webhook-based ingest, DRM, downloads, live video, subtitle ingestion or subscription entitlements. Only upload media Watchora has distribution rights to stream, and activate rights windows only after legal approval.
+
+- Media Studio now provisions resumable Cloudflare TUS uploads for videos under 30 GB. The browser sends video bytes directly to Cloudflare; the application server only provisions a one-time upload destination and then registers the returned asset UID as processing. Assets must finish encoding before an administrator marks them ready. See [Cloudflare Stream setup](docs/CLOUDFLARE_STREAM.md).

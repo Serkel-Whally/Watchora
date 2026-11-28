@@ -7,21 +7,23 @@ Watchora now has a server-side Cloudflare Stream playback adapter. It issues sho
 Set these in the deployment environment (never in a NEXT_PUBLIC_ variable):
 
 - CLOUDFLARE_ACCOUNT_ID: Cloudflare account identifier.
-- CLOUDFLARE_STREAM_API_TOKEN: API token with Stream permissions to read video details and create signed tokens.
+- CLOUDFLARE_STREAM_API_TOKEN: API token with Stream Read, Stream Write and Stream Edit permissions to provision uploads, read video details and create signed tokens.
 - CLOUDFLARE_STREAM_CUSTOMER_CODE: customer code used in customer-<code>.cloudflarestream.com.
 - SUPABASE_SERVICE_ROLE_KEY: server-only Supabase service-role key. Do not expose it to the browser.
 - NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY: existing Supabase application settings.
+
+WATCHORA_PUBLIC_ORIGIN is optional but recommended; set it to the canonical HTTPS origin (for example, https://watchora.example) to restrict uploaded videos to your site origin.
 
 Restart/redeploy the application after setting environment variables.
 
 ## Prepare a video
 
-1. Upload only content Watchora is legally authorized to distribute to your Cloudflare Stream account. This milestone does not yet provide a direct upload interface; use the Cloudflare dashboard or a trusted ingest workflow.
-2. In Cloudflare Stream, make the video private by enabling Require Signed URLs. Public UID playback must be disabled.
-3. Wait until Cloudflare reports the asset is ready to stream.
-4. Open Watchora's private /admin/media workspace.
-5. Register the asset against its Watchora catalogue title. Use the exact provider name cloudflare-stream, paste the Cloudflare Stream video UID, and set its inventory status to ready.
-6. Create a distribution-rights window for the asset. Keep it in draft until the agreement has been reviewed. Only activate it once the written licence permits Watchora to distribute that title in the selected territory and date range.
+1. Open Watchora's private /admin/media workspace and choose the catalogue title.
+2. Use the Direct ingest panel to select the video, set a maximum duration above the actual runtime, and start the resumable upload. Files are transferred directly from the browser to Cloudflare; the Watchora app server never receives the video bytes. The upload metadata enables Require Signed URLs automatically.
+3. After upload completes, Watchora registers the Cloudflare UID with a processing status. Wait for Cloudflare to finish encoding, refresh Media Studio, and mark the asset ready. The playback adapter independently verifies Cloudflare readiness.
+4. Create a distribution-rights window for the asset. Keep it in draft until the agreement has been reviewed. Only activate it once the written licence permits Watchora to distribute that title in the selected territory and date range.
+
+For videos uploaded manually through the Cloudflare dashboard, enable Require Signed URLs before registering the asset in Media Studio. The exact provider name must be cloudflare-stream. The asset UID is registered automatically by the direct ingest panel; dashboard uploads can be registered manually.
 
 The playback adapter independently checks Cloudflare's video details. It refuses assets that are not ready or do not require signed URLs, even if an administrator marked the local inventory row as ready.
 
@@ -40,7 +42,7 @@ When no trusted country header is available (for example, some local development
 
 - This milestone uses Cloudflare Stream for VOD HLS playback; the adapter does not yet implement DRM, downloads, live streaming or subtitles.
 - Watchora does not yet have subscription/payment entitlement checks. For now, a signed-in member may play a title only when its media asset and active territory rights pass validation.
-- Direct browser-to-Cloudflare uploads and upload webhooks are not yet implemented. Asset ingest is an administrator-managed step.
+- Upload webhooks are not yet implemented, so an administrator must refresh the inventory and mark an encoded asset ready after checking Cloudflare status. The direct upload UI uses resumable TUS transfers; the app server only provisions the one-time upload endpoint and never receives the video bytes.
 - Cloudflare Stream usage is billed by the provider. Review current pricing and expected storage/delivery usage before enabling a large catalogue.
 - A working provider account, API token, customer code, Supabase migration and rights-cleared media are required. Without them, the player intentionally remains unavailable.
 

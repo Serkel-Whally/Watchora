@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import * as tus from "tus-js-client";
 import Link from "next/link";
 import { ArrowLeft, Film, Plus, RefreshCw, ShieldCheck, Tv2, Video } from "lucide-react";
 import { films } from "@/lib/catalogue";
@@ -31,6 +32,13 @@ export default function MediaStudio() {
   const [rightsEnd, setRightsEnd] = useState("");
   const [savingRights, setSavingRights] = useState(false);
   const [busyRightsId, setBusyRightsId] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [maxDurationSeconds, setMaxDurationSeconds] = useState("10800");
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const uploadRef = useRef<tus.Upload | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const titleMap = useMemo(() => new Map(titles.map((title) => [title.id, title])), [titles]);
   const filteredAssets = assets.filter((asset) => {
@@ -65,6 +73,94 @@ export default function MediaStudio() {
   }
 
   useEffect(() => { void load(); }, []);
+
+  function startDirectUpload() {
+    if (!selectedFile || uploading) return;
+    if (selectedFile.size <= 0 || selectedFile.size >= 30 * 1024 * 1024 * 1024) {
+      setError("Choose a video file no larger than 30 GB.");
+      return;
+    }
+    const duration = Number(maxDurationSeconds);
+    if (!Number.isSafeInteger(duration) || duration < 1 || duration > 36000) {
+      setError("Maximum duration must be between 1 second and 10 hours.");
+      return;
+    }
+
+    setError(""); setNotice(""); setUploadProgress(0); setUploading(true);
+    setUploadStatus("Preparing a secure upload...");
+    let uploadedMediaId = "";
+    const params = new URLSearchParams({
+      titleId,
+      maxDurationSeconds: String(duration),
+      fileName: selectedFile.name,
+    });
+    const upload = new tus.Upload(selectedFile, {
+      endpoint: `/api/admin/cloudflare-upload-url?${params.toString()}`,
+      chunkSize: 50 * 1024 * 1024,
+      retryDelays: [0, 3000, 5000, 10000, 20000],
+      metadata: { filename: selectedFile.name, filetype: selectedFile.type || "application/octet-stream" },
+      onAfterResponse: async (_request, response) => {
+        const mediaId = response.getHeader("stream-media-id");
+        if (mediaId) uploadedMediaId = mediaId;
+      },
+      onProgress: (uploadedBytes, totalBytes) => {
+        const percentage = totalBytes > 0 ? Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)) : 0;
+        setUploadProgress(percentage);
+        setUploadStatus(`Uploading video... ${percentage}%`);
+      },
+      onError: (cause) => {
+        setError(cause.message || "The video upload failed.");
+        setUploadStatus("Upload failed.");
+        setUploading(false);
+        uploadRef.current = null;
+      },
+      onSuccess: async () => {
+        setUploadProgress(100);
+        setUploadStatus("Upload complete. Registering the media asset...");
+        if (!uploadedMediaId) {
+          setError("The upload completed, but Cloudflare did not return a media ID. Check Cloudflare Stream before retrying.");
+          setUploading(false);
+          uploadRef.current = null;
+          return;
+        }
+        try {
+          const response = await fetch("/api/admin/media-assets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              titleId: Number(titleId),
+              provider: "cloudflare-stream",
+              providerAssetId: uploadedMediaId,
+              status: "processing",
+            }),
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || "The video uploaded, but its media record could not be saved.");
+          setNotice("Video uploaded to Cloudflare Stream and registered. It will become playable after processing finishes and an approved rights window is active.");
+          setSelectedFile(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+          setUploadStatus("Upload complete — processing in Cloudflare Stream.");
+          await load();
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : `Upload complete. Register Cloudflare asset ID: ${uploadedMediaId}`);
+          setUploadStatus(`Upload complete — asset ID: ${uploadedMediaId}`);
+        } finally {
+          setUploading(false);
+          uploadRef.current = null;
+        }
+      },
+    });
+    uploadRef.current = upload;
+    upload.start();
+  }
+
+  async function cancelDirectUpload() {
+    if (!uploadRef.current) return;
+    await uploadRef.current.abort(true);
+    uploadRef.current = null;
+    setUploading(false);
+    setUploadStatus("Upload cancelled.");
+  }
 
   async function addAsset(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -145,6 +241,32 @@ export default function MediaStudio() {
 
         {notice && <p role="status" className="mt-5 rounded-xl border border-emerald-400/15 bg-emerald-400/[.05] p-4 text-sm text-emerald-200">{notice}</p>}
         {error && <div role="alert" className="mt-5 rounded-xl border border-red-400/15 bg-red-400/[.05] p-4 text-sm text-red-200">{error}<button onClick={() => void load()} className="ml-3 underline underline-offset-4">Retry</button></div>}
+
+        <section className="mt-8 rounded-2xl border border-[#d9b779]/20 bg-[#101216] p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#d9b779]">Direct ingest</p><h2 className="mt-2 font-['Manrope'] text-xl font-semibold">Upload a video to Watchora</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-white/45">Videos upload directly from your browser to Cloudflare using resumable transfer. Your file does not pass through the Watchora application server, and the upload is created as private.</p></div>
+            <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] text-white/45">Up to 30 GB</span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <label className="block text-xs text-white/55">Catalogue title
+              <select value={titleId} disabled={uploading} onChange={(event) => setTitleId(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none focus:border-[#d9b779]/60 disabled:opacity-50">{titles.map((film) => <option key={film.id} value={film.id}>{film.title} ({film.year || "Year TBA"}) · {film.kind}</option>)}</select>
+            </label>
+            <label className="block text-xs text-white/55">Video file
+              <input ref={fileInputRef} type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" disabled={uploading} onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} className="mt-2 block w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-xs text-white/65 file:mr-3 file:rounded-full file:border-0 file:bg-[#d9b779] file:px-3 file:py-2 file:text-[10px] file:font-bold file:text-[#17130d]"/>
+            </label>
+            <label className="block text-xs text-white/55">Maximum duration (seconds)
+              <input type="number" min="1" max="36000" value={maxDurationSeconds} disabled={uploading} onChange={(event) => setMaxDurationSeconds(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none focus:border-[#d9b779]/60"/>
+            </label>
+          </div>
+          {selectedFile && <p className="mt-3 break-all text-[11px] text-white/40">{selectedFile.name} · {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB</p>}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={startDirectUpload} disabled={!selectedFile || uploading || titles.length === 0} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#d9b779] px-5 py-3 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94] disabled:opacity-45"><Video size={14}/>{uploading ? "Uploading..." : "Start secure upload"}</button>
+            {uploading && <button type="button" onClick={() => void cancelDirectUpload()} className="rounded-full border border-white/10 px-4 py-3 text-xs text-white/60 hover:text-white">Cancel upload</button>}
+            {uploadStatus && <span role="status" className="text-xs text-white/50">{uploadStatus}</span>}
+          </div>
+          {(uploading || uploadProgress > 0) && <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#d9b779] transition-[width]" style={{ width: `${uploadProgress}%` }}/></div>}
+          <p className="mt-4 text-[10px] leading-5 text-white/30">Cloudflare requires a maximum duration reservation for each upload. The default is 3 hours; set it above the video&apos;s actual runtime. Uploads can be resumed after network interruptions. Only upload content Watchora is licensed to distribute.</p>
+        </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.8fr)]">
           <form onSubmit={addAsset} className="rounded-2xl border border-white/10 bg-[#101216] p-5 sm:p-6">
