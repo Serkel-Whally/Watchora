@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
   if (!Number.isSafeInteger(titleId) || titleId <= 0 ||
       !Number.isSafeInteger(maxDurationSeconds) || maxDurationSeconds < 1 || maxDurationSeconds > 36000 ||
-      !/^\d+$/.test(uploadLengthHeader) || !Number.isSafeInteger(uploadLength) || uploadLength < 1 || uploadLength > MAX_UPLOAD_BYTES ||
+      !/^\d+$/.test(uploadLengthHeader) || !Number.isSafeInteger(uploadLength) || uploadLength < 1 || uploadLength >= MAX_UPLOAD_BYTES ||
       request.headers.get("Tus-Resumable") !== "1.0.0") {
     return NextResponse.json({ error: "Invalid title, file size, maximum duration or TUS protocol version." }, { status: 400 });
   }
@@ -65,7 +65,9 @@ export async function POST(request: NextRequest) {
   let allowedOrigins = "";
   if (appOrigin) {
     try {
-      allowedOrigins = Buffer.from(new URL(appOrigin).hostname).toString("base64");
+      const parsedOrigin = new URL(appOrigin);
+      if (parsedOrigin.protocol !== "https:" && parsedOrigin.hostname !== "localhost") throw new Error("HTTPS origin required");
+      allowedOrigins = Buffer.from(parsedOrigin.hostname).toString("base64");
     } catch {
       return NextResponse.json({ error: "WATCHORA_PUBLIC_ORIGIN must be a valid HTTPS origin." }, { status: 503 });
     }
