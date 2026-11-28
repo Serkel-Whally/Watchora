@@ -12,6 +12,14 @@ async function requireAdmin() {
   return { supabase };
 }
 
+async function validateSeries(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>, titleId: number) {
+  const { data, error } = await supabase.from("content_catalogue").select("id,kind").eq("id", titleId).maybeSingle();
+  if (error) return NextResponse.json({ error: "Unable to verify the parent series." }, { status: 500 });
+  if (!data) return NextResponse.json({ error: "Parent title not found." }, { status: 404 });
+  if (data.kind !== "Series") return NextResponse.json({ error: "Episodes can only belong to a series." }, { status: 400 });
+  return null;
+}
+
 function parseEpisode(input: unknown) {
   if (!input || typeof input !== "object") return null;
   const item = input as Record<string, unknown>;
@@ -57,6 +65,8 @@ export async function POST(request: NextRequest) {
   try { payload = await request.json(); } catch { return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 }); }
   const episode = parseEpisode(payload);
   if (!episode) return NextResponse.json({ error: "Check the series, season, episode number, title, runtime and status." }, { status: 400 });
+  const parentError = await validateSeries(auth.supabase!, episode.title_id);
+  if (parentError) return parentError;
   const { data, error } = await auth.supabase!.from("content_episodes")
     .insert(episode).select("*").single();
   if (error) return NextResponse.json({ error: error.code === "23505" ? "That season and episode number already exists." : "Unable to create this episode." }, { status: error.code === "23505" ? 409 : 500 });
@@ -74,6 +84,8 @@ export async function PATCH(request: NextRequest) {
   if (!Number.isSafeInteger(id) || id <= 0) return NextResponse.json({ error: "A valid episode ID is required." }, { status: 400 });
   const episode = parseEpisode(item);
   if (!episode) return NextResponse.json({ error: "Check the series, season, episode number, title, runtime and status." }, { status: 400 });
+  const parentError = await validateSeries(auth.supabase!, episode.title_id);
+  if (parentError) return parentError;
   const { data, error } = await auth.supabase!.from("content_episodes")
     .update({ ...episode, updated_at: new Date().toISOString() })
     .eq("id", id).select("*").maybeSingle();
