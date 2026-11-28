@@ -38,6 +38,7 @@ export default function MediaStudio() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState("");
   const uploadRef = useRef<tus.Upload | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const titleMap = useMemo(() => new Map(titles.map((title) => [title.id, title])), [titles]);
   const filteredAssets = assets.filter((asset) => {
@@ -75,7 +76,7 @@ export default function MediaStudio() {
 
   function startDirectUpload() {
     if (!selectedFile || uploading) return;
-    if (selectedFile.size <= 0 || selectedFile.size > 30 * 1024 * 1024 * 1024) {
+    if (selectedFile.size <= 0 || selectedFile.size >= 30 * 1024 * 1024 * 1024) {
       setError("Choose a video file no larger than 30 GB.");
       return;
     }
@@ -137,6 +138,7 @@ export default function MediaStudio() {
           if (!response.ok) throw new Error(result.error || "The video uploaded, but its media record could not be saved.");
           setNotice("Video uploaded to Cloudflare Stream and registered. It will become playable after processing finishes and an approved rights window is active.");
           setSelectedFile(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
           setUploadStatus("Upload complete — processing in Cloudflare Stream.");
           await load();
         } catch (cause) {
