@@ -106,8 +106,8 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           <div className="flex items-end justify-between gap-4"><div><p className="eyebrow">Keep exploring</p><h2 className="mt-2 font-['Manrope'] text-2xl font-semibold tracking-[-.04em]">You might also like</h2><p className="mt-2 text-xs text-white/35">Related by genre or country across the Watchora catalogue.</p></div><Link href="/#discover" className="shrink-0 text-xs text-[#d9b779] transition hover:text-[#edce94]">View catalogue</Link></div>
           <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 md:gap-6">
             {related.map((item) => <Link key={item.id} href={`/title/${item.id}`} className="group min-w-0">
-              <div className="poster"><img src={item.image} alt={`${item.title} poster`} loading="lazy"/><span className="absolute bottom-3 left-3 right-3 z-10 text-sm font-semibold text-white">{item.title}</span></div>
-              <p className="mt-3 text-xs text-white/45">{item.year} · {item.genre}</p>
+              <div className="poster">{item.image ? <img src={item.image} alt={`${item.title} poster`} loading="lazy"/> : <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#27231d] to-[#101115] text-3xl font-semibold text-[#d9b779]/50">{item.title.slice(0, 1)}</div>}<span className="absolute bottom-3 left-3 right-3 z-10 text-sm font-semibold text-white">{item.title}</span></div>
+              <p className="mt-3 text-xs text-white/45">{item.year > 0 ? item.year : "Coming soon"} · {item.genre}</p>
               <p className="mt-1 text-[11px] text-white/30">{item.country}</p>
             </Link>)}
           </div>
