@@ -105,3 +105,11 @@ Playback is intentionally unavailable until a licensed media provider and server
 - The current media studio registers provider asset identifiers; it does not upload files to a vendor or issue playback manifests. A provider-specific adapter, webhook verification, entitlement checks, signed playback sessions and DRM integration remain required.
 - Rights windows start in draft. Mark a window active only after verifying the executed distribution agreement, permitted territory, platform/format rights and exact dates. An active record in this editorial tool is not a substitute for legal review or a provider playback entitlement.
 - The studio's title selector currently references the small in-repository sample catalogue. A database-backed global catalogue and season/episode editor are a later milestone.
+
+
+## Admin Studio: catalogue management
+
+- Visit `/admin/studio` to create and edit film, series, anime and documentary catalogue records, including synopsis, slug, release year, genres, country, original language and HTTPS artwork URLs.
+- The workspace includes draft, published and archived states, catalogue search, status filters and basic inventory counts. It is separate from the existing `/admin/media` workspace, which manages provider asset references and rights-window records.
+- Apply `supabase/migrations/202611280002_admin_studio.sql` after the streaming foundation migration. Configure the public Supabase URL and anon key, then assign the trusted `app_metadata.role = 'admin'` to the intended administrator. Both the route/API and database RLS enforce admin writes. Public visitors can read only published metadata.
+- See [Admin Studio setup](docs/ADMIN_STUDIO.md) for setup and limitations. Publishing catalogue metadata does not grant streaming rights or attach a playable video source. Episode/season management and integration of approved database records into the homepage catalogue remain subsequent work.
