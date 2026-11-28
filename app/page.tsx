@@ -9,8 +9,20 @@ import SiteHeader from "@/components/site-header";
 import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
 import { filterCatalogue, getFilmDecade, sortCatalogue, type CatalogueSort } from "@/lib/catalogue-utils";
 import { useWatchlist } from "@/lib/use-watchlist";
+import PersonalizedDiscovery from "@/components/personalized-discovery";
+import { getHomepageFeaturedTitles, getHomepageCollections } from "@/lib/editorial";
+import { getCollectionTitles } from "@/lib/curated-collections";
 
 const catalogue = getCatalogueProvider();
+const featuredTitles = getHomepageFeaturedTitles();
+const homepageCollections = getHomepageCollections();
+
+const collectionTones = {
+  warm: "from-[#594536] via-[#28211d] to-[#111216]",
+  cool: "from-[#31515a] via-[#1b2a30] to-[#111216]",
+  rose: "from-[#603b48] via-[#2d2028] to-[#111216]",
+  gold: "from-[#62502f] via-[#30291d] to-[#111216]",
+};
 
 function FilmCard({ film, saved, ready, onSave }: { film: Film; saved: boolean; ready: boolean; onSave: (id: number) => void }) {
   return (
@@ -70,6 +82,51 @@ export default function Home() {
           <div className="max-w-[420px] border-l border-[#d9b779]/50 pl-4 md:ml-auto md:max-w-[270px] md:rounded-2xl md:border md:border-white/10 md:bg-black/25 md:p-5 md:backdrop-blur-md"><p className="eyebrow">The Watchora approach</p><p className="mt-3 font-['Manrope'] text-lg font-semibold leading-snug">Great stories don’t have borders.</p><p className="mt-2 text-xs leading-5 text-white/50">Discover acclaimed cinema, hidden gems and fresh perspectives from around the globe.</p><div className="mt-5 flex items-center gap-2 text-[11px] text-[#d9b779]"><Globe2 size={13}/> One world. Endless stories.</div></div>
         </div>
         <div className="absolute bottom-7 right-8 hidden items-center gap-2 text-[10px] uppercase tracking-[.2em] text-white/35 lg:flex"><span>Scroll to discover</span><ArrowDown size={13}/></div>
+      </section>
+
+      <PersonalizedDiscovery />
+
+      <section className="shell py-10 md:py-14">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow">The Watchora edit</p>
+            <h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">Stories worth discovering.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/45">A considered selection to help you find your next favourite, from the Watchora catalogue.</p>
+          </div>
+          <a href="#discover" className="inline-flex items-center gap-2 text-xs font-semibold text-[#d9b779] transition hover:text-[#edce94]">Explore the full catalogue <ArrowRight size={14}/></a>
+        </div>
+        <div className="hide-scrollbar mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4">
+          {featuredTitles.map((film) => <div key={film.id} className="w-[168px] shrink-0 snap-start sm:w-[190px] md:w-[210px]"><FilmCard film={film} saved={saved.includes(film.id)} ready={ready} onSave={toggleSave}/></div>)}
+        </div>
+      </section>
+
+      <section className="border-y border-white/[.06] bg-[#0d0f13] py-12 md:py-16">
+        <div className="shell">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">Explore by feeling</p>
+              <h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">A story for every mood.</h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Thoughtful collections, made to give your next discovery a place to begin.</p>
+            </div>
+            <Link href="/collections" className="inline-flex items-center gap-2 text-xs font-semibold text-[#d9b779] transition hover:text-[#edce94]">All collections <ArrowRight size={14}/></Link>
+          </div>
+          <div className="hide-scrollbar mt-7 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3">
+            {homepageCollections.map((collection) => {
+              const titles = getCollectionTitles(collection);
+              const lead = titles[0];
+              return <Link key={collection.slug} href={`/collections/${collection.slug}`} className={`group relative isolate flex min-h-[265px] w-[285px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${collectionTones[collection.tone]} p-5 transition duration-300 hover:-translate-y-1 hover:border-[#d9b779]/40 sm:w-[340px] sm:min-h-[290px] sm:p-6`}>
+                {lead && <img src={lead.image} alt="" aria-hidden="true" loading="lazy" className="absolute -right-5 -top-4 -z-20 h-[115%] w-[62%] object-cover opacity-30 transition duration-700 group-hover:scale-105 group-hover:opacity-45"/>}
+                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#111216]/95 via-[#111216]/75 to-[#111216]/25"/>
+                <span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#e5c58d]">{collection.number} / Curated collection</span>
+                <div className="max-w-[260px]">
+                  <h3 className="font-['Manrope'] text-2xl font-semibold leading-tight tracking-[-.04em] sm:text-3xl">{collection.title}</h3>
+                  <p className="mt-3 text-xs leading-5 text-white/60">{collection.description}</p>
+                  <span className="mt-6 inline-flex items-center gap-2 text-xs font-semibold text-[#e4c58e]">Explore collection <ArrowRight size={13} className="transition group-hover:translate-x-1"/></span>
+                </div>
+              </Link>;
+            })}
+          </div>
+        </div>
       </section>
 
       <section id="discover" className="shell scroll-mt-8 py-16 md:py-20">
