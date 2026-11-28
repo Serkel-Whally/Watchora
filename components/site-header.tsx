@@ -5,10 +5,11 @@ import Link from "next/link";
 import { Menu, X, ArrowRight, ChevronDown } from "lucide-react";
 
 const links = [
-  { href: "/#discover", label: "Discover" },
-  { href: "/collections", label: "Collections" },
+  { href: "/", label: "Home" },
+  { href: "/movies", label: "Movies" },
+  { href: "/series", label: "Series" },
+  { href: "/watchlist", label: "My List" },
   { href: "/community", label: "Community" },
-  { href: "/watchlist", label: "Watchlist" },
 ];
 
 const moreLinks = [
