@@ -70,7 +70,7 @@ export default function Home() {
     <main className="min-h-screen">
       <SiteHeader overlay />
       <section className="relative isolate min-h-[590px] overflow-hidden bg-[#090a0d] md:min-h-[660px]">
-        <div className="absolute inset-0 -z-30 bg-cover bg-[center_28%] opacity-55" style={{ backgroundImage: \`url("\${featuredTitles[0]?.image ?? catalogue.getAll()[0]?.image ?? ""}")\` }}/>
+        <div className="absolute inset-0 -z-30 bg-cover bg-[center_28%] opacity-55" style={{ backgroundImage: `url("${featuredTitles[0]?.image ?? catalogue.getAll()[0]?.image ?? ""}")` }}/>
         <div className="absolute inset-0 -z-20 bg-gradient-to-r from-[#090a0d] via-[#090a0d]/85 to-[#090a0d]/20"/>
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#090a0d] via-transparent to-black/35"/>
         <div className="shell relative grid min-h-[590px] items-center gap-10 pb-14 pt-28 md:min-h-[660px] md:grid-cols-[minmax(0,1fr)_270px] md:pb-20 md:pt-28">
@@ -81,8 +81,8 @@ export default function Home() {
             <p className="mt-6 max-w-[540px] text-sm leading-7 text-white/65 md:text-base">{featuredTitles[0]?.description ?? "Discover films and series from every corner of the world."}</p>
             <div className="mt-5 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-white/55"><span>{featuredTitles[0]?.year}</span><span>·</span><span>{featuredTitles[0]?.kind}</span><span>·</span><span>{featuredTitles[0]?.genre}</span><span>·</span><span>{featuredTitles[0]?.country}</span></div>
             <div className="mt-8 flex flex-wrap gap-3">
-              {featuredTitles[0] && <Link href={\`/watch/\${featuredTitles[0].id}\`} className="inline-flex items-center gap-2 rounded-full bg-[#d9b779] px-6 py-3.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]"><Play size={15} fill="currentColor"/> Watch now</Link>}
-              {featuredTitles[0] && <Link href={\`/title/\${featuredTitles[0].id}\`} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-6 py-3.5 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10"><Info size={15}/> More info</Link>}
+              {featuredTitles[0] && <Link href={`/watch/${featuredTitles[0].id}`} className="inline-flex items-center gap-2 rounded-full bg-[#d9b779] px-6 py-3.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]"><Play size={15} fill="currentColor"/> Watch now</Link>}
+              {featuredTitles[0] && <Link href={`/title/${featuredTitles[0].id}`} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-6 py-3.5 text-xs font-semibold text-white transition hover:border-white/40 hover:bg-white/10"><Info size={15}/> More info</Link>}
               <button onClick={() => setShowMood(true)} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3.5 text-xs font-semibold text-white/70 transition hover:border-white/35 hover:text-white"><Sparkles size={14}/> Find by mood</button>
             </div>
             <form onSubmit={(event) => { event.preventDefault(); document.getElementById("discover")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-8 flex h-12 max-w-[510px] items-center gap-3 rounded-full border border-white/15 bg-black/40 px-4 shadow-lg backdrop-blur-md">
@@ -91,8 +91,8 @@ export default function Home() {
               <button type="submit" aria-label="Search catalogue" className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold text-white/80 transition hover:bg-[#d9b779] hover:text-[#17130d]">Search</button>
             </form>
           </div>
-          {featuredTitles[0] && <Link href={\`/title/\${featuredTitles[0].id}\`} className="group hidden max-w-[230px] justify-self-end md:block">
-            <div className="poster overflow-hidden rounded-2xl shadow-[0_28px_80px_rgba(0,0,0,.6)] ring-1 ring-white/20 transition duration-500 group-hover:-translate-y-2 group-hover:ring-[#d9b779]/50"><img src={featuredTitles[0].image} alt={\`\${featuredTitles[0].title} poster\`}/><span className="absolute bottom-4 left-4 right-4 z-10 text-sm font-bold text-white">Explore this story <ArrowRight size={13} className="ml-1 inline"/></span></div>
+          {featuredTitles[0] && <Link href={`/title/${featuredTitles[0].id}`} className="group hidden max-w-[230px] justify-self-end md:block">
+            <div className="poster overflow-hidden rounded-2xl shadow-[0_28px_80px_rgba(0,0,0,.6)] ring-1 ring-white/20 transition duration-500 group-hover:-translate-y-2 group-hover:ring-[#d9b779]/50"><img src={featuredTitles[0].image} alt={`${featuredTitles[0].title} poster`}/><span className="absolute bottom-4 left-4 right-4 z-10 text-sm font-bold text-white">Explore this story <ArrowRight size={13} className="ml-1 inline"/></span></div>
             <p className="mt-3 text-center text-[9px] uppercase tracking-[.2em] text-white/35">Selected for Watchora</p>
           </Link>}
         </div>
