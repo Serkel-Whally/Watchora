@@ -1,6 +1,8 @@
 # Watchora
 
-A premium, worldwide movie and TV discovery experience. Watchora helps people decide what to watch and find legitimate places to watch it. It does not host or stream video.
+A premium, global streaming-platform foundation for discovering, watching and discussing films and series. The repository is currently a discovery/community MVP with a playback-ready UI shell; no licensed video provider or production streaming assets are connected yet. Watchora must only stream content it owns or is authorised to distribute.
+
+See [the streaming platform blueprint](docs/STREAMING_PLATFORM_BLUEPRINT.md) for the product structure, media architecture, rollout and launch gates.
 
 ## Product principles
 - Global catalogue and country-aware discovery
