@@ -18,13 +18,12 @@ Restart/redeploy the application after setting environment variables.
 
 ## Prepare a video
 
-1. Upload only content Watchora is legally authorized to distribute to your Cloudflare Stream account. Watchora Media Studio now provides resumable direct uploads to Cloudflare Stream. Uploads go from the browser to Cloudflare, not through the Watchora app server. The Cloudflare dashboard remains available for manual ingest.
-2. In Cloudflare Stream, make the video private by enabling Require Signed URLs. Public UID playback must be disabled.
-3. Wait until Cloudflare reports the asset is ready to stream.
-4. Open Watchora's private /admin/media workspace and choose the catalogue title.
-5. Use the Direct ingest panel to select the video, set a maximum duration above the actual runtime, and start the resumable upload. Files are uploaded directly to Cloudflare with Require Signed URLs enabled.
-6. After upload completes, Watchora automatically registers the Cloudflare UID with a processing status. Wait for Cloudflare to finish encoding, then refresh the Media Studio inventory and mark the asset ready. The playback adapter independently verifies Cloudflare readiness.
-7. Create a distribution-rights window for the asset. Keep it in draft until the agreement has been reviewed. Only activate it once the written licence permits Watchora to distribute that title in the selected territory and date range.
+1. Open Watchora's private /admin/media workspace and choose the catalogue title.
+2. Use the Direct ingest panel to select the video, set a maximum duration above the actual runtime, and start the resumable upload. Files are transferred directly from the browser to Cloudflare; the Watchora app server never receives the video bytes. The upload metadata enables Require Signed URLs automatically.
+3. After upload completes, Watchora registers the Cloudflare UID with a processing status. Wait for Cloudflare to finish encoding, refresh Media Studio, and mark the asset ready. The playback adapter independently verifies Cloudflare readiness.
+4. Create a distribution-rights window for the asset. Keep it in draft until the agreement has been reviewed. Only activate it once the written licence permits Watchora to distribute that title in the selected territory and date range.
+
+For videos uploaded manually through the Cloudflare dashboard, enable Require Signed URLs before registering the asset in Media Studio. The exact provider name must be cloudflare-stream. The asset UID is registered automatically by the direct ingest panel; dashboard uploads can be registered manually.
 
 The playback adapter independently checks Cloudflare's video details. It refuses assets that are not ready or do not require signed URLs, even if an administrator marked the local inventory row as ready.
 
