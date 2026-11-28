@@ -30,6 +30,7 @@ export default function MediaStudio() {
   const [rightsStart, setRightsStart] = useState("");
   const [rightsEnd, setRightsEnd] = useState("");
   const [savingRights, setSavingRights] = useState(false);
+  const [busyRightsId, setBusyRightsId] = useState("");
 
   const titleMap = useMemo(() => new Map(titles.map((title) => [title.id, title])), [titles]);
   const filteredAssets = assets.filter((asset) => {
@@ -92,6 +93,24 @@ export default function MediaStudio() {
       setNotice("Rights window saved as draft. Activate it only after legal approval."); setRightsEnd("");
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to create rights window."); }
     finally { setSavingRights(false); }
+  }
+
+  async function updateRightsStatus(id: string, nextStatus: string) {
+    setBusyRightsId(id); setError(""); setNotice("");
+    try {
+      const response = await fetch("/api/admin/rights-windows", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: nextStatus }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to update rights status.");
+      setAssets((current) => current.map((asset) => ({
+        ...asset,
+        rights_windows: (asset.rights_windows ?? []).map((window) => window.id === id ? { ...window, status: result.rightsWindow.status } : window),
+      })));
+      setNotice("Rights status updated.");
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to update rights status."); }
+    finally { setBusyRightsId(""); }
   }
 
   async function updateStatus(id: string, nextStatus: string) {
@@ -182,7 +201,10 @@ export default function MediaStudio() {
                     <div className="min-w-0"><p className="text-sm font-semibold text-white">{title?.title ?? `Catalogue title #${asset.title_id}`}</p><p className="mt-1 break-all text-xs text-white/40">{asset.provider} · {asset.provider_asset_id}</p><p className="mt-2 text-[10px] text-white/30">Added {new Date(asset.created_at).toLocaleDateString()}</p></div>
                     <div className="flex items-center gap-2"><span className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${asset.status === "ready" ? "border-emerald-400/20 bg-emerald-400/[.06] text-emerald-200" : asset.status === "failed" ? "border-red-400/20 bg-red-400/[.06] text-red-200" : "border-white/10 bg-white/[.03] text-white/50"}`}>{asset.status}</span><select disabled={busyId === asset.id} value={asset.status} onChange={(event) => void updateStatus(asset.id, event.target.value)} aria-label={`Update status for ${title?.title ?? asset.id}`} className="max-w-32 rounded-lg border border-white/10 bg-[#090b0e] px-2 py-2 text-xs text-white outline-none disabled:opacity-40">{statuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
                   </div>
-                  <div className="mt-4 border-t border-white/[.07] pt-3 text-xs text-white/40">{asset.rights_windows?.length ? <span>{asset.rights_windows.length} rights window(s): {asset.rights_windows.map((window) => `${window.territory_code} · ${window.status}`).join(", ")}</span> : "No distribution-rights windows recorded."}</div>
+                  <div className="mt-4 border-t border-white/[.07] pt-3">
+                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.13em] text-white/35">Distribution rights</p>
+                    {asset.rights_windows?.length ? <div className="space-y-2">{asset.rights_windows.map((window) => <div key={window.id} className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/45"><span>{window.territory_code} · {new Date(window.starts_at).toLocaleDateString()}{window.ends_at ? ` – ${new Date(window.ends_at).toLocaleDateString()}` : " – no end date"}</span><select disabled={busyRightsId === window.id} value={window.status} onChange={(event) => void updateRightsStatus(window.id, event.target.value)} aria-label={`Update rights status for ${window.territory_code}`} className="rounded-lg border border-white/10 bg-[#090b0e] px-2 py-1.5 text-[10px] text-white/65 disabled:opacity-40"><option value="draft">Draft</option><option value="active">Active</option><option value="suspended">Suspended</option><option value="expired">Expired</option></select></div>)}</div> : <p className="text-xs text-white/35">No distribution-rights windows recorded.</p>}
+                  </div>
                 </article>;
               })}
             </div>
