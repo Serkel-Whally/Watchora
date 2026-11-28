@@ -95,7 +95,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </section>}
-      <footer className="border-t border-white/[.08] py-8"><div className="shell flex flex-col justify-between gap-3 text-xs text-white/30 sm:flex-row"><Link href="/" className="font-['Manrope'] font-extrabold text-white/65">watchora<span className="text-[#d9b779]">.</span></Link><span>Discovery preview · Watchora does not host streams or downloads</span></div></footer>
+      <footer className="border-t border-white/[.08] py-8"><div className="shell flex flex-col justify-between gap-3 text-xs text-white/30 sm:flex-row"><Link href="/" className="font-['Manrope'] font-extrabold text-white/65">watchora<span className="text-[#d9b779]">.</span></Link><span>Streaming platform preview · licensed playback provider not yet connected</span></div></footer>
     </main>
   );
 }
