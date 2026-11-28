@@ -1,7 +1,9 @@
-export type TitleKind = "Film" | "Series";
+export type TitleKind = "Film" | "Series" | "Anime" | "Documentary";
 
 export type Film = {
   id: number;
+  /** Database ID for titles managed in Admin Studio; public IDs use a separate namespace. */
+  studioId?: number;
   title: string;
   year: number;
   kind: TitleKind;

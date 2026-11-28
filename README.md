@@ -115,3 +115,11 @@ Playback is intentionally unavailable until a licensed media provider and server
 - See [Admin Studio setup](docs/ADMIN_STUDIO.md) for setup and limitations. Publishing catalogue metadata does not grant streaming rights or attach a playable video source. Episode/season management and integration of approved database records into the homepage catalogue remain subsequent work.
 
 - Series entries now link to `/admin/studio/[id]/episodes`, where admins can group, create, edit and delete season/episode metadata. Episode endpoints verify the parent title is a Series; public RLS requires both the episode and parent series to be published. See [Admin Studio setup](docs/ADMIN_STUDIO.md). The current public catalogue/player still needs a follow-on integration to consume these records and connect licensed episode assets.
+
+
+## Public catalogue integration
+
+- The homepage now requests published Admin Studio entries from `/api/catalogue` and adds them to discovery filters and search while preserving the existing illustrative starter catalogue.
+- Published Studio entries use a separate public numeric ID namespace so they cannot collide with the starter catalogue IDs. Their detail pages resolve through the server-side catalogue adapter; the watch route uses the underlying Studio database ID when requesting a playback session.
+- Series detail pages display published season/episode metadata from the Studio database. Public reads remain subject to the database's published-only row-level security policies.
+- This is a metadata integration, not a video integration. The player continues to report playback unavailable until a licensed provider, active territory rights and entitlement checks are connected. The public homepage currently hydrates Studio titles after initial render; curated editorial shelves still use the configured editorial seed data.

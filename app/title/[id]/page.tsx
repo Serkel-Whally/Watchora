@@ -5,13 +5,11 @@ import { ArrowLeft, Clock3, Globe2, Languages, Star, Sparkles, Play } from "luci
 import WatchlistToggle from "@/components/watchlist-toggle";
 import TitleViewTracker from "@/components/title-view-tracker";
 import TitleReviews from "@/components/title-reviews";
-import { getCatalogueProvider } from "@/lib/sample-catalogue-provider";
-
-const catalogue = getCatalogueProvider();
+import { getPublicCatalogue, getPublicTitleById, getPublishedStudioEpisodes } from "@/lib/studio-catalogue";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const film = catalogue.getById(Number(id));
+  const film = await getPublicTitleById(Number(id));
   return {
     title: film ? `${film.title} — Watchora` : "Title not found — Watchora",
     description: film?.description,
@@ -20,10 +18,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function TitlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const film = catalogue.getById(Number(id));
+  const film = await getPublicTitleById(Number(id));
   if (!film) notFound();
 
-  const related = catalogue.getAll()
+  const episodes = film.studioId && film.kind === "Series" ? await getPublishedStudioEpisodes(film.studioId) : [];
+  const episodeSeasons = [...new Set(episodes.map((episode) => episode.season_number))];
+  const related = (await getPublicCatalogue())
     .filter((item) => item.id !== film.id && (item.genre === film.genre || item.country === film.country))
     .slice(0, 4);
 
@@ -40,7 +40,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           <div className="mt-8 grid items-center gap-8 md:mt-12 md:grid-cols-[minmax(220px,300px)_1fr] md:gap-14 lg:grid-cols-[320px_1fr] lg:gap-16">
             <div className="mx-auto w-full max-w-[280px] md:max-w-none">
               <div className="poster shadow-[0_28px_80px_rgba(0,0,0,.55)] ring-1 ring-white/10">
-                <img src={film.image} alt={`${film.title} poster`} />
+                {film.image ? <img src={film.image} alt={`${film.title} poster`} /> : <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#27231d] to-[#101115] text-6xl font-semibold text-[#d9b779]/50">{film.title.slice(0, 1)}</div>}
                 <span className="absolute left-3 top-3 z-10 rounded-full border border-white/15 bg-black/65 px-3 py-1.5 text-[9px] font-bold tracking-[.16em]">{film.kind.toUpperCase()}</span>
               </div>
               <p className="mt-3 text-center text-[10px] uppercase tracking-[.16em] text-white/30">Watchora title guide</p>
@@ -52,7 +52,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
               {film.originalTitle && <p className="mt-3 text-sm text-white/40">{film.originalTitle}</p>}
 
               <div className="mt-6 flex flex-wrap items-center gap-2 text-[11px] text-white/60">
-                {[String(film.year), film.kind, film.genre, film.country].map((item) => <span key={item} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">{item}</span>)}
+                {[film.year > 0 ? String(film.year) : "Release year TBA", film.kind, film.genre, film.country].map((item) => <span key={item} className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">{item}</span>)}
                 {film.runtimeMinutes && <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[.04] px-3 py-2"><Clock3 size={12}/> {film.runtimeMinutes} min</span>}
                 {film.seasonCount && <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">{film.seasonCount} seasons</span>}
               </div>
@@ -69,7 +69,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
               <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/35">Community signal</p>
-                  <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-white/80"><Star size={14} className="text-[#d9b779]"/> {film.rating} <span className="text-[10px] font-normal text-white/35">illustrative sample rating</span></p>
+                  <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-white/80"><Star size={14} className="text-[#d9b779]"/> {film.rating} <span className="text-[10px] font-normal text-white/35">{film.rating === "—" ? "no rating yet" : "illustrative sample rating"}</span></p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/35">Viewing information</p>
@@ -81,15 +81,33 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
         </div>
       </section>
 
+      {film.kind === "Series" && film.studioId && <section className="border-b border-white/[.08] bg-[#0d0f13] py-12 md:py-16">
+        <div className="shell">
+          <p className="eyebrow">Watch the story unfold</p>
+          <h2 className="mt-2 font-['Manrope'] text-2xl font-semibold tracking-[-.04em]">Episodes & seasons</h2>
+          {episodes.length === 0 ? <p className="mt-4 text-sm text-white/40">Episodes will appear here when they are published by Watchora.</p> : <div className="mt-7 space-y-7">
+            {episodeSeasons.map((season) => <section key={season}>
+              <h3 className="mb-3 text-sm font-semibold text-white/80">Season {season}</h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                {episodes.filter((episode) => episode.season_number === season).map((episode) => <article key={episode.id} className="flex gap-4 rounded-2xl border border-white/[.08] bg-black/20 p-4">
+                  <div className="flex h-12 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[.05] font-mono text-xs text-[#d9b779]">E{String(episode.episode_number).padStart(2, "0")}</div>
+                  <div className="min-w-0"><h4 className="text-sm font-semibold text-white">{episode.title}</h4><p className="mt-1 text-xs leading-5 text-white/45">{episode.description || "Episode details coming soon."}</p>{episode.runtime_minutes && <p className="mt-2 text-[10px] text-white/30">{episode.runtime_minutes} min</p>}</div>
+                </article>)}
+              </div>
+            </section>)}
+          </div>}
+        </div>
+      </section>}
+
       <TitleReviews titleId={film.id} title={film.title} />
 
       {related.length > 0 && <section className="border-t border-white/[.08] bg-[#0d0f13] py-14 md:py-16">
         <div className="shell">
-          <div className="flex items-end justify-between gap-4"><div><p className="eyebrow">Keep exploring</p><h2 className="mt-2 font-['Manrope'] text-2xl font-semibold tracking-[-.04em]">You might also like</h2><p className="mt-2 text-xs text-white/35">Related by genre or country in this sample catalogue.</p></div><Link href="/#discover" className="shrink-0 text-xs text-[#d9b779] transition hover:text-[#edce94]">View catalogue</Link></div>
+          <div className="flex items-end justify-between gap-4"><div><p className="eyebrow">Keep exploring</p><h2 className="mt-2 font-['Manrope'] text-2xl font-semibold tracking-[-.04em]">You might also like</h2><p className="mt-2 text-xs text-white/35">Related by genre or country across the Watchora catalogue.</p></div><Link href="/#discover" className="shrink-0 text-xs text-[#d9b779] transition hover:text-[#edce94]">View catalogue</Link></div>
           <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 md:gap-6">
             {related.map((item) => <Link key={item.id} href={`/title/${item.id}`} className="group min-w-0">
-              <div className="poster"><img src={item.image} alt={`${item.title} poster`} loading="lazy"/><span className="absolute bottom-3 left-3 right-3 z-10 text-sm font-semibold text-white">{item.title}</span></div>
-              <p className="mt-3 text-xs text-white/45">{item.year} · {item.genre}</p>
+              <div className="poster">{item.image ? <img src={item.image} alt={`${item.title} poster`} loading="lazy"/> : <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#27231d] to-[#101115] text-3xl font-semibold text-[#d9b779]/50">{item.title.slice(0, 1)}</div>}<span className="absolute bottom-3 left-3 right-3 z-10 text-sm font-semibold text-white">{item.title}</span></div>
+              <p className="mt-3 text-xs text-white/45">{item.year > 0 ? item.year : "Coming soon"} · {item.genre}</p>
               <p className="mt-1 text-[11px] text-white/30">{item.country}</p>
             </Link>)}
           </div>
