@@ -51,7 +51,7 @@ Vendor-specific credentials, API calls, caching and licensing checks belong in a
 
 ## Discovery interface notes
 - Collection cards link to dedicated `/collections/[slug]` editorial pages, with title cards presented as a horizontal, snap-scrolling shelf on smaller screens and a grid on wide screens.
-- The homepage unifies the cinematic landing experience and full catalogue discovery. Featured titles and editorial collections lead into a complete, filterable catalogue with search, format, genre, country, language, decade and sort controls. `/explore` redirects to the homepage discovery section so there is one primary browse experience.
+- The homepage unifies the cinematic landing experience and full catalogue discovery into one continuous journey: cinematic hero with immediate catalogue search and mood finder; locally personalized/recently viewed picks; an editorial featured-title shelf; horizontal curated-collection cards; and the complete searchable, filterable catalogue with format, genre, country, language, decade and sort controls. This ordering gives visitors inspiration and quick routes into discovery before presenting the full catalogue, without creating a second browse destination. `/explore` redirects to `/#discover` so there is one primary browse experience. Personalization is explainable and browser-derived; it is not presented as AI.
 - Mobile navigation is a right-edge drawer that slides left into view, locks background scrolling while open, closes with Escape or backdrop tap, and stacks navigation links vertically.
 
 ## Community reviews and authentication
