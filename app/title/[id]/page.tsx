@@ -61,6 +61,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
               {film.originalLanguage && <p className="mt-5 inline-flex items-center gap-2 text-xs text-white/40"><Languages size={13}/> Original language: {film.originalLanguage.toUpperCase()}</p>}
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link href={`/watch/${film.id}`} className="inline-flex items-center gap-2 rounded-full bg-[#d9b779] px-5 py-3 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]"><Play size={14} fill="currentColor"/> Watch now</Link>
                 <WatchlistToggle id={film.id} title={film.title}/>
                 <Link href="#reviews" className="rounded-full border border-white/15 bg-white/[.04] px-5 py-3 text-xs font-semibold text-white/75 transition hover:border-white/30 hover:bg-white/[.08] hover:text-white">Read & write reviews</Link>
               </div>
