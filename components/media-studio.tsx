@@ -265,7 +265,7 @@ export default function MediaStudio() {
             {uploadStatus && <span role="status" className="text-xs text-white/50">{uploadStatus}</span>}
           </div>
           {(uploading || uploadProgress > 0) && <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#d9b779] transition-[width]" style={{ width: `${uploadProgress}%` }}/></div>}
-          <p className="mt-4 text-[10px] leading-5 text-white/30">Cloudflare requires a maximum duration reservation for each upload. The default is 3 hours; set it above the video's actual runtime. Uploads can be resumed after network interruptions. Only upload content Watchora is licensed to distribute.</p>
+          <p className="mt-4 text-[10px] leading-5 text-white/30">Cloudflare requires a maximum duration reservation for each upload. The default is 3 hours; set it above the video&apos;s actual runtime. Uploads can be resumed after network interruptions. Only upload content Watchora is licensed to distribute.</p>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.8fr)]">
