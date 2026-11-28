@@ -6,19 +6,22 @@ import { ArrowLeft, Film, Plus, RefreshCw, ShieldCheck, Tv2, Video } from "lucid
 import { films } from "@/lib/catalogue";
 
 type RightsWindow = { id: string; territory_code: string; starts_at: string; ends_at: string | null; status: string };
+type MediaTitle = { id: number; studioId?: number; title: string; year: number; kind: string };
 type Asset = { id: string; title_id: number; provider: string; provider_asset_id: string; status: string; created_at: string; updated_at: string; rights_windows?: RightsWindow[] };
+const STUDIO_PUBLIC_ID_OFFSET = 1_000_000_000;
 
 const statuses = ["pending", "processing", "ready", "failed", "disabled"] as const;
 
 export default function MediaStudio() {
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [titles, setTitles] = useState<MediaTitle[]>(films);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [titleId, setTitleId] = useState(String(films[0]?.id ?? ""));
-  const [provider, setProvider] = useState("");
+  const [provider, setProvider] = useState("cloudflare-stream");
   const [providerAssetId, setProviderAssetId] = useState("");
   const [status, setStatus] = useState("pending");
   const [query, setQuery] = useState("");
@@ -27,8 +30,9 @@ export default function MediaStudio() {
   const [rightsStart, setRightsStart] = useState("");
   const [rightsEnd, setRightsEnd] = useState("");
   const [savingRights, setSavingRights] = useState(false);
+  const [busyRightsId, setBusyRightsId] = useState("");
 
-  const titleMap = useMemo(() => new Map(films.map((film) => [film.id, film])), []);
+  const titleMap = useMemo(() => new Map(titles.map((title) => [title.id, title])), [titles]);
   const filteredAssets = assets.filter((asset) => {
     const title = titleMap.get(asset.title_id)?.title ?? "";
     return `${title} ${asset.provider} ${asset.provider_asset_id} ${asset.status}`.toLowerCase().includes(query.toLowerCase());
@@ -39,11 +43,22 @@ export default function MediaStudio() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/api/admin/media-assets", { cache: "no-store" });
+      const [response, catalogueResponse] = await Promise.all([
+        fetch("/api/admin/media-assets", { cache: "no-store" }),
+        fetch("/api/admin/catalogue", { cache: "no-store" }),
+      ]);
       const result = await response.json();
+      const catalogueResult = await catalogueResponse.json().catch(() => ({}));
       if (response.status === 401) { window.location.href = "/sign-in?next=%2Fadmin%2Fmedia"; return; }
       if (!response.ok) throw new Error(result.error || "Unable to load media inventory.");
       setAssets(Array.isArray(result.assets) ? result.assets : []);
+      if (catalogueResponse.ok && Array.isArray(catalogueResult.titles)) {
+        const studioTitles = catalogueResult.titles.map((title: { id: number; title: string; release_year: number | null; kind: string }) => ({
+          id: STUDIO_PUBLIC_ID_OFFSET + title.id, studioId: title.id,
+          title: title.title, year: title.release_year ?? 0, kind: title.kind,
+        }));
+        setTitles([...studioTitles, ...films]);
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to load media inventory.");
     } finally { setLoading(false); }
@@ -63,7 +78,7 @@ export default function MediaStudio() {
       if (!response.ok) throw new Error(result.error || "Unable to register media asset.");
       setAssets((current) => [result.asset, ...current]);
       setProviderAssetId("");
-      setNotice("Media asset registered. Playback still requires a configured provider adapter and active rights.");
+      setNotice("Asset registered. Playback also requires Cloudflare readiness, signed-URL privacy and an active territory rights window.");
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to register media asset."); }
     finally { setSaving(false); }
   }
@@ -78,6 +93,24 @@ export default function MediaStudio() {
       setNotice("Rights window saved as draft. Activate it only after legal approval."); setRightsEnd("");
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to create rights window."); }
     finally { setSavingRights(false); }
+  }
+
+  async function updateRightsStatus(id: string, nextStatus: string) {
+    setBusyRightsId(id); setError(""); setNotice("");
+    try {
+      const response = await fetch("/api/admin/rights-windows", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: nextStatus }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to update rights status.");
+      setAssets((current) => current.map((asset) => ({
+        ...asset,
+        rights_windows: (asset.rights_windows ?? []).map((window) => window.id === id ? { ...window, status: result.rightsWindow.status } : window),
+      })));
+      setNotice("Rights status updated.");
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to update rights status."); }
+    finally { setBusyRightsId(""); }
   }
 
   async function updateStatus(id: string, nextStatus: string) {
@@ -107,7 +140,7 @@ export default function MediaStudio() {
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-xs text-white/40">Registered assets</p><p className="mt-2 font-['Manrope'] text-3xl font-semibold tabular-nums">{assets.length}</p></div>
           <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-xs text-white/40">Marked ready</p><p className="mt-2 font-['Manrope'] text-3xl font-semibold tabular-nums">{readyCount}</p></div>
-          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-xs text-white/40">Catalogue titles</p><p className="mt-2 font-['Manrope'] text-3xl font-semibold tabular-nums">{films.length}</p></div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><p className="text-xs text-white/40">Catalogue titles</p><p className="mt-2 font-['Manrope'] text-3xl font-semibold tabular-nums">{titles.length}</p></div>
         </div>
 
         {notice && <p role="status" className="mt-5 rounded-xl border border-emerald-400/15 bg-emerald-400/[.05] p-4 text-sm text-emerald-200">{notice}</p>}
@@ -118,10 +151,10 @@ export default function MediaStudio() {
             <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d9b779]/10 text-[#d9b779]"><Plus size={18}/></div><div><h2 className="font-['Manrope'] text-lg font-semibold">Register media asset</h2><p className="mt-1 text-xs text-white/40">Store a provider reference, never a public source URL.</p></div></div>
             <label className="mt-6 block text-xs text-white/55">Catalogue title</label>
             <select value={titleId} onChange={(event) => setTitleId(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none focus:border-[#d9b779]/60">
-              {films.map((film) => <option key={film.id} value={film.id}>{film.title} ({film.year})</option>)}
+              {titles.map((film) => <option key={film.id} value={film.id}>{film.title} ({film.year || "Year TBA"}) · {film.kind}</option>)}
             </select>
             <label className="mt-4 block text-xs text-white/55">Video provider</label>
-            <input required minLength={2} maxLength={80} value={provider} onChange={(event) => setProvider(event.target.value)} placeholder="e.g. mux, cloudflare-stream" className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d9b779]/60"/>
+            <input required minLength={2} maxLength={80} value={provider} onChange={(event) => setProvider(event.target.value)} placeholder="cloudflare-stream" className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d9b779]/60"/>
             <label className="mt-4 block text-xs text-white/55">Provider asset ID</label>
             <input required minLength={2} maxLength={200} value={providerAssetId} onChange={(event) => setProviderAssetId(event.target.value)} placeholder="Provider's asset identifier" className="mt-2 w-full rounded-xl border border-white/10 bg-[#090b0e] px-3 py-3 text-sm text-white outline-none placeholder:text-white/20 focus:border-[#d9b779]/60"/>
             <label className="mt-4 block text-xs text-white/55">Processing status</label>
@@ -137,7 +170,7 @@ export default function MediaStudio() {
               <li className="flex gap-3"><Film size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Confirm written distribution rights for the title.</li>
               <li className="flex gap-3"><Tv2 size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Record permitted territories and start/end dates.</li>
               <li className="flex gap-3"><Video size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Verify provider ingest, encoding and playback status.</li>
-              <li className="flex gap-3"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Validate entitlement, signed playback and DRM requirements server-side.</li>
+              <li className="flex gap-3"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#d9b779]"/> Confirm whether the licence requires DRM; DRM support is not enabled yet.</li>
             </ul>
             <p className="mt-6 rounded-xl border border-[#d9b779]/15 bg-[#d9b779]/[.04] p-4 text-xs leading-6 text-[#d9b779]/80">A “ready” label is an editorial status only. It does not grant rights or create a playable session.</p>
           </aside>
@@ -157,7 +190,7 @@ export default function MediaStudio() {
         </section>
 
         <section className="mt-10">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-['Manrope'] text-xl font-semibold">Media inventory</h2><p className="mt-1 text-xs text-white/40">Provider references linked to the current catalogue.</p></div><button onClick={() => void load()} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-xs text-white/60 transition hover:border-white/25 hover:text-white"><RefreshCw size={13}/> Refresh</button></div>
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-['Manrope'] text-xl font-semibold">Media inventory</h2><p className="mt-1 text-xs text-white/40">Provider references linked to published Studio titles and the starter catalogue.</p></div><button onClick={() => void load()} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-xs text-white/60 transition hover:border-white/25 hover:text-white"><RefreshCw size={13}/> Refresh</button></div>
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search title, provider, asset ID or status…" className="mt-4 w-full rounded-xl border border-white/10 bg-[#101216] px-4 py-3 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#d9b779]/60"/>
           {loading ? <p className="py-12 text-center text-sm text-white/40">Loading media inventory…</p> : filteredAssets.length === 0 ? <div className="mt-4 rounded-2xl border border-dashed border-white/10 px-6 py-14 text-center"><Video size={26} className="mx-auto text-white/25"/><p className="mt-4 text-sm font-medium text-white/65">{assets.length ? "No matching assets" : "No media assets registered yet"}</p><p className="mt-1 text-xs text-white/35">Register a provider asset above to start building your inventory.</p></div> : (
             <div className="mt-4 space-y-3">
@@ -168,7 +201,10 @@ export default function MediaStudio() {
                     <div className="min-w-0"><p className="text-sm font-semibold text-white">{title?.title ?? `Catalogue title #${asset.title_id}`}</p><p className="mt-1 break-all text-xs text-white/40">{asset.provider} · {asset.provider_asset_id}</p><p className="mt-2 text-[10px] text-white/30">Added {new Date(asset.created_at).toLocaleDateString()}</p></div>
                     <div className="flex items-center gap-2"><span className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${asset.status === "ready" ? "border-emerald-400/20 bg-emerald-400/[.06] text-emerald-200" : asset.status === "failed" ? "border-red-400/20 bg-red-400/[.06] text-red-200" : "border-white/10 bg-white/[.03] text-white/50"}`}>{asset.status}</span><select disabled={busyId === asset.id} value={asset.status} onChange={(event) => void updateStatus(asset.id, event.target.value)} aria-label={`Update status for ${title?.title ?? asset.id}`} className="max-w-32 rounded-lg border border-white/10 bg-[#090b0e] px-2 py-2 text-xs text-white outline-none disabled:opacity-40">{statuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
                   </div>
-                  <div className="mt-4 border-t border-white/[.07] pt-3 text-xs text-white/40">{asset.rights_windows?.length ? <span>{asset.rights_windows.length} rights window(s): {asset.rights_windows.map((window) => `${window.territory_code} · ${window.status}`).join(", ")}</span> : "No distribution-rights windows recorded."}</div>
+                  <div className="mt-4 border-t border-white/[.07] pt-3">
+                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[.13em] text-white/35">Distribution rights</p>
+                    {asset.rights_windows?.length ? <div className="space-y-2">{asset.rights_windows.map((window) => <div key={window.id} className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/45"><span>{window.territory_code} · {new Date(window.starts_at).toLocaleDateString()}{window.ends_at ? ` – ${new Date(window.ends_at).toLocaleDateString()}` : " – no end date"}</span><select disabled={busyRightsId === window.id} value={window.status} onChange={(event) => void updateRightsStatus(window.id, event.target.value)} aria-label={`Update rights status for ${window.territory_code}`} className="rounded-lg border border-white/10 bg-[#090b0e] px-2 py-1.5 text-[10px] text-white/65 disabled:opacity-40"><option value="draft">Draft</option><option value="active">Active</option><option value="suspended">Suspended</option><option value="expired">Expired</option></select></div>)}</div> : <p className="text-xs text-white/35">No distribution-rights windows recorded.</p>}
+                  </div>
                 </article>;
               })}
             </div>

@@ -14,6 +14,6 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
   const { id } = await params;
   const title = await getPublicTitleById(Number(id));
   if (!title) notFound();
-  const playback = await createPlaybackSession(title.studioId ?? title.id);
+  const playback = await createPlaybackSession(title.id);
   return <PlaybackPlayer title={title} playback={playback} />;
 }

@@ -40,11 +40,21 @@ export async function POST(request: NextRequest) {
   if (!payload || typeof payload !== "object") return NextResponse.json({ error: "Invalid media asset." }, { status: 400 });
   const { titleId, provider, providerAssetId, status } = payload as Record<string, unknown>;
   if (
-    !Number.isSafeInteger(titleId) || !films.some((film) => film.id === titleId) ||
+    typeof titleId !== "number" || !Number.isSafeInteger(titleId) || titleId <= 0 ||
     typeof provider !== "string" || !/^[a-zA-Z0-9 _.-]{2,80}$/.test(provider.trim()) ||
     typeof providerAssetId !== "string" || providerAssetId.trim().length < 2 || providerAssetId.trim().length > 200 ||
     (status !== undefined && status !== "pending" && status !== "processing" && status !== "ready" && status !== "failed" && status !== "disabled")
   ) return NextResponse.json({ error: "Choose a catalogue title and enter a valid provider, provider asset ID and status." }, { status: 400 });
+
+  if (titleId > 1_000_000_000) {
+    const studioId = titleId - 1_000_000_000;
+    const { data: studioTitle, error: titleError } = await context.db!
+      .from("content_catalogue").select("id").eq("id", studioId).maybeSingle();
+    if (titleError) return NextResponse.json({ error: "Unable to verify the selected Studio title." }, { status: 500 });
+    if (!studioTitle) return NextResponse.json({ error: "The selected Studio title does not exist." }, { status: 404 });
+  } else if (!films.some((film) => film.id === titleId)) {
+    return NextResponse.json({ error: "The selected starter catalogue title does not exist." }, { status: 404 });
+  }
 
   const { data, error } = await context.db!
     .from("media_assets")
