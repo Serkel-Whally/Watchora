@@ -78,6 +78,11 @@ export default function Home() {
               <a href="#discover" className="inline-flex items-center gap-3 rounded-full bg-[#d9b779] px-6 py-3.5 text-xs font-bold text-[#17130d] transition hover:bg-[#edce94]">Discover films & series <ArrowRight size={15}/></a>
               <button onClick={() => setShowMood(true)} className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[.04] px-6 py-3.5 text-xs font-semibold text-white transition hover:bg-white/10"><Sparkles size={14}/> Find by mood</button>
             </div>
+            <form onSubmit={(event) => { event.preventDefault(); document.getElementById("discover")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-6 flex h-12 max-w-[490px] items-center gap-3 rounded-full border border-white/15 bg-black/35 px-4 shadow-lg backdrop-blur-md">
+              <Search size={16} className="shrink-0 text-[#d9b779]"/>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search films, series, countries or genres..." aria-label="Search the Watchora catalogue" className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-white/40"/>
+              <button type="submit" aria-label="View search results" className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold text-white/80 transition hover:bg-[#d9b779] hover:text-[#17130d]">Search</button>
+            </form>
           </div>
           <div className="max-w-[420px] border-l border-[#d9b779]/50 pl-4 md:ml-auto md:max-w-[270px] md:rounded-2xl md:border md:border-white/10 md:bg-black/25 md:p-5 md:backdrop-blur-md"><p className="eyebrow">The Watchora approach</p><p className="mt-3 font-['Manrope'] text-lg font-semibold leading-snug">Great stories don’t have borders.</p><p className="mt-2 text-xs leading-5 text-white/50">Discover acclaimed cinema, hidden gems and fresh perspectives from around the globe.</p><div className="mt-5 flex items-center gap-2 text-[11px] text-[#d9b779]"><Globe2 size={13}/> One world. Endless stories.</div></div>
         </div>
@@ -132,7 +137,7 @@ export default function Home() {
       <section id="discover" className="shell scroll-mt-8 py-16 md:py-20">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div><p className="eyebrow">Explore everything</p><h2 className="mt-3 font-['Manrope'] text-3xl font-semibold tracking-[-.05em] md:text-4xl">The Watchora catalogue</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/45">Every title currently in our catalogue, together in one place. Filter by format, genre, country, language or era.</p></div>
-          <label className="flex h-12 w-full items-center gap-3 rounded-full border border-white/10 bg-white/[.035] px-4 lg:max-w-[360px]"><Search size={16} className="text-white/35"/><input value={query} onChange={(e) => updateFilter(() => setQuery(e.target.value))} placeholder="Search titles, countries, genres..." className="w-full bg-transparent text-xs text-white outline-none placeholder:text-white/30"/></label>
+
         </div>
 
         <div className="mt-5 rounded-2xl border border-white/[.08] bg-white/[.025] p-3 md:mt-7 md:p-5">
