@@ -28,3 +28,11 @@ This milestone manages catalogue metadata only. It does not upload video files, 
 The editor accepts only HTTPS artwork URLs. Use image URLs from sources whose licensing and terms permit Watchora's intended use. Publishing metadata does not authorize distribution of the underlying film or series.
 
 The current homepage still uses the illustrative in-repository seed catalogue. A later integration must reconcile approved database catalogue records with the public catalogue provider rather than silently replacing seed data. Season and episode management is a separate next step.
+
+
+## Series seasons and episodes
+
+- From a Series row in the catalogue list, select the episodes icon to open `/admin/studio/[id]/episodes`.
+- Create, edit and delete episode records, grouped by season. Each episode stores its season and episode numbers, title, synopsis, optional runtime and publication state.
+- Episode numbers must be unique within a season. The API verifies that the parent catalogue entry exists and is a Series before allowing create or update.
+- Public episode reads are limited by RLS to published episodes whose parent series is also published. The current public catalogue/player integration does not yet consume these database episode records or attach episode video assets.
