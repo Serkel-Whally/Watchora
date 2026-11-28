@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Bookmark, Check, Globe2, Search, Sparkles, X, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { ArrowDown, ArrowRight, Bookmark, Check, Globe2, Search, Sparkles, X, SlidersHorizontal, ChevronDown } from "lucide-react";
 
 import { genres, type Film, type TitleKind } from "@/lib/catalogue";
 import SiteHeader from "@/components/site-header";
