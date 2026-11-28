@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function WatchPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const title = catalogue.getById(Number(id));
+  const title = await getPublicTitleById(Number(id));
   if (!title) notFound();
   const playback = await createPlaybackSession(title.studioId ?? title.id);
   return <PlaybackPlayer title={title} playback={playback} />;
