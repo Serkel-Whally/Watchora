@@ -50,6 +50,7 @@ export default function PlaybackPlayer({ title, playback }: { title: Film; playb
     const restore = () => {
       if (resumePosition > 0 && Math.abs(video.currentTime - resumePosition) > 5) video.currentTime = resumePosition;
     };
+    if (video.readyState >= 1) restore();
     video.addEventListener("loadedmetadata", restore);
     return () => video.removeEventListener("loadedmetadata", restore);
   }, [available, resumePosition, resumeReady]);
