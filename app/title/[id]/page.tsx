@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function TitlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const film = catalogue.getById(Number(id));
+  const film = await getPublicTitleById(Number(id));
   if (!film) notFound();
 
   const episodes = film.studioId && film.kind === "Series" ? await getPublishedStudioEpisodes(film.studioId) : [];
