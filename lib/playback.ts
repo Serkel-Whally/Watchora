@@ -64,7 +64,7 @@ export async function createPlaybackSession(titleId: number): Promise<PlaybackAv
   const customerCode = process.env.CLOUDFLARE_STREAM_CUSTOMER_CODE;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!accountId || !apiToken || !customerCode || !supabaseUrl || !serviceKey) {
+  if (!accountId || !/^[a-f0-9]{32}$/i.test(accountId) || !apiToken || !customerCode || !/^[a-z0-9-]{4,64}$/i.test(customerCode) || !supabaseUrl || !serviceKey) {
     return unavailable("not_configured");
   }
 
