@@ -99,7 +99,7 @@ export default function MediaStudio() {
       chunkSize: 50 * 1024 * 1024,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       metadata: { filename: selectedFile.name, filetype: selectedFile.type || "application/octet-stream" },
-      onAfterResponse: (_request, response) => {
+      onAfterResponse: async (_request, response) => {
         const mediaId = response.getHeader("stream-media-id");
         if (mediaId) uploadedMediaId = mediaId;
       },
